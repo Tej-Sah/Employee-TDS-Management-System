@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard | TDS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 glass-card border-none flex flex-col hidden md:flex shrink-0 sidebar-animate m-4 mr-0 rounded-2xl overflow-hidden z-50">
+        <div class="p-6 border-b border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                    <i data-lucide="briefcase" class="text-slate-900 dark:text-white w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TDS Portal</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scrollbar px-3">
+            <a href="javascript:void(0)" onclick="showSection('dashboardSection')" id="link-dashboardSection" class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 rounded-xl bg-black/10 dark:bg-white/10 text-slate-900 dark:text-white">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> My Dashboard
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('payslipsSection')" id="link-payslipsSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="file-text" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Payslips
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('taxDeclarationSection')" id="link-taxDeclarationSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="file-spreadsheet" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Tax Declaration
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('form16Section')" id="link-form16Section" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="award" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Form 16
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <button onclick="logout()" class="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200 group">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="h-20 flex items-center justify-between px-8 sticky top-0 z-40">
+            <div class="glass-card w-full h-16 flex items-center justify-between px-6 mt-4">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight" id="headerTitle">Employee Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+
+                    <div class="flex items-center space-x-4">
+
+                        
+                        <!-- Theme Toggle Button -->
+                        <button onclick="TDS_PORTAL.ui.toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white relative transition-colors bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                        </button>
+
+                        <div class="h-8 w-px bg-black/10 dark:bg-white/10"></div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <button id="profileBtn" onclick="TDS_PORTAL.session.toggleProfileDropdown()" class="flex items-center space-x-3 p-1 rounded-xl hover:bg-black/10 dark:bg-white/10 transition-all duration-200 group border border-transparent hover:border-black/10 dark:border-white/10">
+                                <div id="userInitials" class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-slate-900 dark:text-white font-bold text-sm shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                                    EM
+                                </div>
+                                <div class="text-left hidden sm:block pr-2">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-none" id="userName">Employee Name</p>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Employee</p>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:text-slate-900 dark:text-white transition-colors mr-1"></i>
+                            </button>
+
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden z-[100] animate-fade-in">
+                                <div class="p-2">
+                                    <div class="px-4 py-3 border-b border-black/10 dark:border-white/10 mb-2">
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Signed in as</p>
+                                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate" id="userEmail">employee@tdsportal.com</p>
+                                    </div>
+                                    <button onclick="TDS_PORTAL.ui.showMyProfile()" class="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-black/10 dark:bg-white/10 rounded-xl transition-colors group">
+                                        <i data-lucide="user" class="w-4 h-4 mr-3 text-slate-500 group-hover:text-emerald-500 transition-colors"></i> My Profile
+                                    </button>
+                                    <button onclick="TDS_PORTAL.ui.showToast('Please contact HR to change your password.', 'info')" class="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-black/10 dark:bg-white/10 rounded-xl transition-colors group">
+                                        <i data-lucide="key" class="w-4 h-4 mr-3 text-slate-500 group-hover:text-emerald-500 transition-colors"></i> Change Password
+                                    </button>
+                                    <div class="h-px bg-black/10 dark:bg-white/10 my-2 mx-2"></div>
+                                    <button onclick="logout()" class="flex items-center w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors group">
+                                        <i data-lucide="log-out" class="w-4 h-4 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <!-- Dashboard Section -->
+            <div id="dashboardSection" class="section-content animate-fade-in">
+                
+                <!-- Welcome Banner -->
+                <div class="glass-card p-8 mb-8 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full -mr-32 -mt-32 blur-3xl transition-colors duration-500"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Welcome back, <span id="welcomeName" class="text-emerald-400">Employee</span>! 👋</h2>
+                        <p class="text-slate-500 dark:text-slate-400">Here is a summary of your tax deductions and earnings for the financial year.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- CTC Card -->
+                    <div class="glass-card p-6 hover:border-emerald-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
+                                <i data-lucide="indian-rupee" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded-full border border-emerald-500/20">FY 2025-26</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">Annual CTC</h3>
+                        <p id="statCTC" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">₹0</p>
+                    </div>
+
+                    <!-- Total Tax Card -->
+                    <div class="glass-card p-6 hover:border-rose-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500 shadow-lg shadow-rose-500/10 group-hover:scale-110 transition-transform">
+                                <i data-lucide="calculator" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-rose-400 text-xs font-bold bg-rose-500/10 px-2 py-1 rounded-full border border-rose-500/20">Computed</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">Total Tax</h3>
+                        <p id="statTotalTax" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">₹0</p>
+                    </div>
+
+                    <!-- Monthly TDS Card -->
+                    <div class="glass-card p-6 hover:border-blue-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
+                                <i data-lucide="calendar" class="w-6 h-6"></i>
+                            </div>
+                            <span class="text-blue-400 text-xs font-bold bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">Monthly</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">Monthly TDS</h3>
+                        <p id="statMonthlyTDS" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">₹0</p>
+                    </div>
+
+                    <!-- Tax Regime Card -->
+                    <div class="glass-card p-6 hover:border-indigo-500/50 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-500 shadow-lg shadow-indigo-500/10 group-hover:scale-110 transition-transform">
+                                <i data-lucide="file-check" class="w-6 h-6"></i>
+                            </div>
+                            <button class="text-indigo-400 hover:text-slate-900 dark:text-white transition-colors">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">Tax Regime</h3>
+                        <p id="statRegime" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">New</p>
+                    </div>
+                </div>
+
+                <!-- Details & Visuals Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    
+                    <!-- Table Section -->
+                    <div class="lg:col-span-2 glass-card overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col hover-lift">
+                        <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-black/5 dark:bg-white/5">
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1 flex items-center">
+                                    <i data-lucide="file-text" class="w-5 h-5 mr-3 text-emerald-500"></i>
+                                    Recent Payslips
+                                </h3>
+                            </div>
+                            <button onclick="showSection('payslipsSection')" class="text-sm font-bold text-emerald-400 hover:text-slate-900 dark:text-white transition-colors flex items-center">
+                                View All <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                            </button>
+                        </div>
+                        <div class="flex-1 overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-100 dark:bg-slate-800/30 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest border-b border-black/5 dark:border-white/5">
+                                    <tr>
+                                        <th class="px-6 py-4">Month</th>
+                                        <th class="px-6 py-4">Gross Earnings</th>
+                                        <th class="px-6 py-4 text-rose-400">TDS Deduction</th>
+                                        <th class="px-6 py-4 text-emerald-400">Net Paid</th>
+                                        <th class="px-6 py-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="payslipsTableBody" class="divide-y divide-white/5 whitespace-nowrap">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Chart Section -->
+                    <div class="glass-card p-6 border border-slate-200 dark:border-slate-800 hover-lift relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl transition-colors duration-500"></div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-6 relative z-10 flex items-center">
+                            <i data-lucide="pie-chart" class="w-5 h-5 mr-3 text-blue-500"></i>
+                            TDS Breakdown
+                        </h3>
+                        <div class="h-[220px] relative z-10 flex items-center justify-center">
+                            <canvas id="tdsChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Placeholders for other sections -->
+            <div id="payslipsSection" class="section-content hidden animate-fade-in">
+                <div class="glass-card overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
+                    <div class="p-8 border-b border-slate-200 dark:border-slate-800 bg-black/5 dark:bg-white/5">
+                        <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 flex items-center">
+                            <i data-lucide="folder-open" class="w-8 h-8 mr-4 text-emerald-500"></i>
+                            My Payslip History
+                        </h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm">Access and download all your monthly salary statements</p>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-black tracking-widest border-b border-black/5 dark:border-white/5">
+                                <tr>
+                                    <th class="px-8 py-5">Statement Period</th>
+                                    <th class="px-8 py-5">Gross Monthly</th>
+                                    <th class="px-8 py-5">Tax Deducted</th>
+                                    <th class="px-8 py-5">Other Deductions</th>
+                                    <th class="px-8 py-5">Net Take-Home</th>
+                                    <th class="px-8 py-5 text-right">Download</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullPayslipsTableBody" class="divide-y divide-black/5 dark:divide-white/5 whitespace-nowrap">
+                                <!-- Populated by JS -->
+                                <tr>
+                                    <td colspan="6" class="px-8 py-20 text-center text-slate-500">
+                                        <div class="flex flex-col items-center">
+                                            <i data-lucide="loader" class="w-10 h-10 animate-spin mb-4 text-emerald-500"></i>
+                                            <p class="font-bold uppercase tracking-widest text-xs">Loading your financial records...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tax Declaration Section -->
+            <div id="taxDeclarationSection" class="section-content hidden animate-fade-in">
+                <div class="flex flex-col xl:flex-row gap-8">
+                    <!-- Main Comparison Table Column -->
+                    <div class="flex-1 space-y-8">
+                        <div class="glass-card p-10 relative overflow-hidden group border border-slate-200 dark:border-white/5">
+                            <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-600/5 rounded-full -mr-48 -mt-48 blur-3xl group-hover:bg-indigo-600/10 transition-colors duration-500"></div>
+                            
+                            <div class="relative z-10">
+                                <h2 class="text-4xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight">Tax Deductions 2025-2026</h2>
+                                
+                                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-10 max-w-2xl font-medium">
+                                    For FY 2025-2026, you have the option of either using a new tax regime (with no tax deductions), or using the same regime as FY 2024-25. To help you make an informed decision, we are displaying your tax liability in both these regimes, and you can choose the option that you prefer. For us to accurately calculate your tax liabilities, please ensure you fill in all the information requested below, irrespective of the regime that you pick.
+                                </p>
+
+                                <div class="overflow-hidden rounded-2xl border border-slate-200 dark:border-white/5 bg-white/50 dark:bg-slate-900/50 shadow-2xl">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr class="regime-table-header border-b border-slate-200 dark:border-white/10">
+                                                <th class="px-8 py-6"></th>
+                                                <th class="px-8 py-6 text-[10px] font-black text-slate-500 dark:text-white uppercase tracking-[0.2em] text-right">New tax regime</th>
+                                                <th class="px-8 py-6 text-[10px] font-black text-slate-500 dark:text-white uppercase tracking-[0.2em] text-right">Old tax regime</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 dark:divide-white/5 font-bold text-slate-700 dark:text-slate-300">
+                                            <tr class="regime-table-row transition-colors">
+                                                <td class="px-8 py-5 text-sm">Earnings</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">12,79,385</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">12,79,385</td>
+                                            </tr>
+                                            <tr class="regime-table-row transition-colors">
+                                                <td class="px-8 py-5 text-sm">Exemptions</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">0</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">1,77,171</td>
+                                            </tr>
+                                            <tr class="regime-table-row transition-colors">
+                                                <td class="px-8 py-5 text-sm">Standard Deduction</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">0</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">50,000</td>
+                                            </tr>
+                                            <tr class="regime-table-row transition-colors">
+                                                <td class="px-8 py-5 text-sm">Deductions</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">0</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black">4,26,800</td>
+                                            </tr>
+                                            <tr class="bg-indigo-500/5 dark:bg-white/5">
+                                                <td class="px-8 py-5 font-black text-sm text-indigo-500">Taxable Income</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black text-lg">12,79,385</td>
+                                                <td class="px-8 py-5 text-right text-slate-900 dark:text-white font-black text-lg">6,25,414</td>
+                                            </tr>
+                                            <tr class="bg-indigo-500/10 dark:bg-indigo-900/20">
+                                                <td class="px-8 py-5 font-black text-sm text-indigo-600 dark:text-indigo-400">Total Tax Liability</td>
+                                                <td class="px-8 py-5 text-right regime-value-negative font-black text-2xl tracking-tighter">1,37,640</td>
+                                                <td class="px-8 py-5 text-right regime-value-positive font-black text-2xl tracking-tighter">39,086</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-10 flex items-center bg-black/5 dark:bg-white/5 p-4 rounded-xl border border-black/5 dark:border-white/5">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-4 animate-pulse shadow-lg shadow-emerald-500/50"></div>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight regime-status-text">Your current chosen regime is <span class="text-slate-900 dark:text-white font-black border-b-2 border-emerald-500">Old tax regime</span>.</p>
+                                </div>
+
+                                <div class="mt-6 p-8 bg-indigo-500/5 dark:bg-indigo-500/10 border-l-4 border-indigo-500 rounded-r-2xl shadow-inner">
+                                    <p class="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                                        You should continue with your current selection. Please confirm your selection so that we can use it in future payroll calculations.
+                                    </p>
+                                </div>
+
+                                <div class="mt-12 flex items-center space-x-6">
+                                    <button onclick="TDS_PORTAL.ui.switchRegime()" class="px-12 py-4 rounded-xl border-2 border-indigo-500/30 text-indigo-500 font-black hover:bg-indigo-500/20 transition-all uppercase tracking-widest text-[10px] hover-lift">Switch Regime</button>
+                                    <button onclick="TDS_PORTAL.ui.showToast('Selection Confirmed for FY 2025-26', 'success')" class="px-12 py-4 rounded-xl bg-indigo-600 text-white font-black hover:bg-indigo-500 transition-all uppercase tracking-widest text-[10px] shadow-2xl shadow-indigo-600/40 hover:scale-105 active:scale-95">Confirm Selection</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Section -->
+                    <div class="w-full xl:w-80 space-y-8 animate-slide-up">
+                        <div class="glass-card p-8 border border-slate-200 dark:border-white/5 hover-lift bg-gradient-to-br from-white/50 to-white/30 dark:from-slate-800/50 dark:to-slate-900/50 shadow-2xl">
+                            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-10 tracking-tighter flex items-center">
+                                <i data-lucide="calendar-days" class="w-5 h-5 mr-3 text-indigo-500"></i>
+                                April 2026 Preview
+                            </h3>
+                            
+                            <div class="space-y-8">
+                                <div class="group">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 group-hover:text-indigo-400 transition-colors">Gross Earnings</p>
+                                    <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">₹66,667</p>
+                                </div>
+                                <div class="group">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 group-hover:text-rose-400 transition-colors">Monthly TDS</p>
+                                    <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">₹0</p>
+                                </div>
+                                <div class="group">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 group-hover:text-amber-400 transition-colors">Total Deductions</p>
+                                    <p class="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">₹3,800</p>
+                                </div>
+                                <div class="pt-8 border-t-2 border-dashed border-slate-200 dark:border-white/10 group">
+                                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 group-hover:text-emerald-400 transition-colors">Estimated Net Pay</p>
+                                    <p class="text-4xl font-black text-emerald-500 tracking-tighter">₹62,867</p>
+                                </div>
+                            </div>
+
+                            <p class="text-[10px] text-slate-500 font-bold mt-12 uppercase tracking-widest text-center border-t border-black/5 dark:border-white/5 pt-6">Click <a href="#" class="text-indigo-500 font-black hover:underline underline-offset-4 decoration-2">here</a> to view payslip.</p>
+                        </div>
+
+                        <!-- Form 12BB Card -->
+                        <div class="bg-indigo-950/5 dark:bg-indigo-950/40 rounded-3xl p-8 border-2 border-indigo-500/10 relative overflow-hidden group hover:border-indigo-500/30 transition-all cursor-pointer shadow-xl">
+                            <div class="absolute -top-4 -right-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform"></div>
+                            <div class="flex items-start justify-between relative z-10">
+                                <div class="pr-4">
+                                    <h4 class="text-lg font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Form 12BB</h4>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-bold">Download, sign and upload your digital investment proofs.</p>
+                                </div>
+                                <div class="bg-indigo-600 w-12 h-12 flex items-center justify-center rounded-2xl text-white shadow-xl shadow-indigo-600/30 group-hover:rotate-12 transition-all shrink-0">
+                                    <i data-lucide="send" class="w-6 h-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form 16 Section -->
+            <div id="form16Section" class="section-content hidden animate-fade-in space-y-8">
+                <div class="glass-card overflow-hidden border-2 border-emerald-500/20 shadow-2xl">
+                    <!-- Header -->
+                    <div class="bg-emerald-600/10 dark:bg-emerald-500/5 p-8 border-b border-emerald-500/20 text-center relative">
+                        <div class="absolute top-4 right-8 px-3 py-1 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Digital Certificate</div>
+                        <h1 class="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">FORM NO. 16</h1>
+                        <p class="text-emerald-500 dark:text-emerald-400 font-bold text-sm mt-1 uppercase tracking-widest">[See Rule 31(1)(a)]</p>
+                        <p class="text-slate-500 text-xs mt-4 max-w-2xl mx-auto italic font-medium">Certificate under section 203 of the Income-tax Act, 1961 for tax deducted at source from income chargeable under the head "Salaries".</p>
+                    </div>
+
+                    <div id="form16Content" class="p-8 space-y-12 bg-white/50 dark:bg-[#0f172a]/50 backdrop-blur-md">
+                        <div class="text-center py-20">
+                            <i data-lucide="loader" class="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4"></i>
+                            <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Preparing your tax certificate...</p>
+                        </div>
+                    </div>
+
+                    <!-- Footer / Print Action -->
+                    <div class="p-8 bg-emerald-600/5 border-t border-emerald-500/20 flex justify-between items-center">
+                        <p class="text-[10px] text-slate-500 uppercase font-black tracking-widest">Document Generated: <span class="text-indigo-500">April 10, 2026</span></p>
+                        <button onclick="window.print()" class="btn-indigo group hover-lift px-8 py-3 rounded-xl font-bold flex items-center shadow-lg shadow-emerald-500/20">
+                            <i data-lucide="printer" class="w-5 h-5 mr-3 group-hover:scale-110"></i> Print Form 16
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Full Payslip Modal -->
+            <div id="fullPayslipModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closePayslipModal()"></div>
+                <div class="glass-card w-full max-w-4xl max-h-[90vh] overflow-y-auto relative z-10 animate-scale-in p-0 bg-white dark:bg-slate-900 shadow-2xl">
+                    <!-- Modal Header -->
+                    <div class="sticky top-0 z-20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 border-b border-black/5 dark:border-white/5 flex items-center justify-between">
+                        <h3 class="font-bold text-slate-900 dark:text-white flex items-center">
+                            <i data-lucide="file-text" class="w-5 h-5 mr-3 text-emerald-500"></i>
+                            Salary Statement
+                        </h3>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="window.print()" class="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-colors text-slate-500 dark:text-slate-400" title="Print Payslip">
+                                <i data-lucide="printer" class="w-5 h-5"></i>
+                            </button>
+                            <button onclick="closePayslipModal()" class="p-2 hover:bg-rose-500/10 rounded-lg transition-colors text-slate-500 dark:text-slate-400 hover:text-rose-500">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Payslip Content (Printable Area) -->
+                    <div id="payslipPrintArea" class="p-8 sm:p-12 text-slate-900 dark:text-slate-200 bg-white dark:bg-slate-900">
+                        <div class="border-2 border-slate-900 dark:border-slate-700 p-0">
+                            <!-- Company Header -->
+                            <div class="text-center p-4 border-b-2 border-slate-900 dark:border-slate-700">
+                                <h1 class="text-2xl font-black uppercase tracking-widest text-slate-900 dark:text-white" id="psCompanyName">COMPANY NAME</h1>
+                                <p class="text-sm font-bold mt-1" id="psPeriod">Salary slip for January 2026</p>
+                            </div>
+
+                            <!-- User Info -->
+                            <div class="grid grid-cols-2 p-6 gap-x-12 gap-y-2 text-sm border-b-2 border-slate-900 dark:border-slate-700">
+                                <div class="flex"><span class="w-32 font-bold">Name</span><span class="mr-2">:</span><span id="psName">John Doe</span></div>
+                                <div class="flex"><span class="w-32 font-bold">Department</span><span class="mr-2">:</span><span id="psDept">Engineering</span></div>
+                                <div class="flex"><span class="w-32 font-bold">Designation</span><span class="mr-2">:</span><span id="psDesig">Software Engineer</span></div>
+                                <div class="flex"><span class="w-32 font-bold">Bank Name</span><span class="mr-2">:</span><span id="psBank">HDFC Bank Ltd</span></div>
+                                <div class="flex"><span class="w-32 font-bold">Location</span><span class="mr-2">:</span><span id="psLoc">Remote</span></div>
+                                <div class="flex"><span class="w-32 font-bold">Bank A/c No.</span><span class="mr-2">:</span><span id="psAcc">XXXXXXXX4521</span></div>
+                            </div>
+
+                            <!-- Tables -->
+                            <div class="grid grid-cols-2">
+                                <!-- Earnings Table -->
+                                <div class="border-r-2 border-slate-900 dark:border-slate-700">
+                                    <table class="w-full text-xs text-left">
+                                        <thead>
+                                            <tr class="border-b-2 border-slate-900 dark:border-slate-700 bg-slate-50 dark:bg-white/5">
+                                                <th colspan="2" class="px-3 py-2 text-center uppercase font-black text-sm">Earnings</th>
+                                            </tr>
+                                            <tr class="border-b border-slate-900 dark:border-slate-700">
+                                                <th class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 w-16">Serial No.</th>
+                                                <th class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Salary Head</th>
+                                                <th class="px-3 py-1.5 text-right">Amount (₹)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-400/20">
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">1</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Basic</td><td class="px-3 py-1.5 text-right" id="psBasic">0</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">2</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">House Rent Allowance</td><td class="px-3 py-1.5 text-right" id="psHra">0</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">3</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Other Allowances</td><td class="px-3 py-1.5 text-right" id="psAlw">0</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">4</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Bonus / Incentives</td><td class="px-3 py-1.5 text-right" id="psBonus">0</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">5</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-white opacity-0">-</td><td class="px-3 py-1.5 text-right">-</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">6</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-white opacity-0">-</td><td class="px-3 py-1.5 text-right">-</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- Deductions Table -->
+                                <div>
+                                    <table class="w-full text-xs text-left">
+                                        <thead>
+                                            <tr class="border-b-2 border-slate-900 dark:border-slate-700 bg-slate-50 dark:bg-white/5">
+                                                <th colspan="2" class="px-3 py-2 text-center uppercase font-black text-sm">Deductions</th>
+                                            </tr>
+                                            <tr class="border-b border-slate-900 dark:border-slate-700">
+                                                <th class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 w-16">Serial No.</th>
+                                                <th class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Salary Head</th>
+                                                <th class="px-3 py-1.5 text-right">Amount (₹)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-400/20">
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">1</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Professional Tax</td><td class="px-3 py-1.5 text-right">200.00</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">2</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-rose-500 font-medium">TDS Deducted</td><td class="px-3 py-1.5 text-right" id="psTds">0</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">3</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">Employee Provident Fund</td><td class="px-3 py-1.5 text-right">1,800.00</td></tr>
+                                            <tr><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center text-white opacity-0">4</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-white opacity-0">-</td><td class="px-3 py-1.5 text-right">-</td></tr>
+                                            <tr class="text-white opacity-0"><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">5</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">-</td><td class="px-3 py-1.5 text-right">-</td></tr>
+                                            <tr class="text-white opacity-0"><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700 text-center">6</td><td class="px-3 py-1.5 border-r border-slate-900 dark:border-slate-700">-</td><td class="px-3 py-1.5 text-right">-</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Totals Section -->
+                            <div class="p-6 space-y-4">
+                                <div class="flex flex-wrap gap-8 justify-between">
+                                    <div class="space-y-4 flex-1 min-w-[300px]">
+                                        <div class="flex items-center"><span class="w-48 py-1 px-3 border border-slate-900 dark:border-slate-700 font-bold text-xs uppercase">Gross Earnings / PM</span><span class="px-8 py-1 border border-l-0 border-slate-900 dark:border-slate-700 font-bold text-xs min-w-[120px] text-right" id="psGross">0</span></div>
+                                        <div class="text-xs italic text-slate-500">Reimbursement: <span id="psReimb">-</span></div>
+                                        <div class="flex items-center"><span class="w-48 py-1 px-3 border border-slate-900 dark:border-slate-700 font-bold text-xs uppercase">Cost To Company / PM</span><span class="px-8 py-1 border border-l-0 border-slate-900 dark:border-slate-700 font-bold text-xs min-w-[120px] text-right" id="psCtcPM">0</span></div>
+                                        <div class="flex items-center pt-2"><span class="w-48 py-1.5 px-3 border border-slate-900 dark:border-slate-700 font-black text-sm uppercase bg-slate-50 dark:bg-white/5">Net Salary</span><span class="px-8 py-1.5 border border-l-0 border-slate-900 dark:border-slate-700 font-black text-sm min-w-[120px] text-right bg-slate-50 dark:bg-white/5 text-emerald-500" id="psNet">0</span></div>
+                                        <div class="flex items-center"><span class="w-48 py-1 px-3 border border-slate-900 dark:border-slate-700 font-bold text-xs uppercase">Total Days</span><span class="px-8 py-1 border border-l-0 border-slate-900 dark:border-slate-700 font-bold text-xs min-w-[120px] text-right" id="psDays">30</span></div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <div class="flex items-center"><span class="w-48 py-1 px-3 border border-slate-900 dark:border-slate-700 font-bold text-xs uppercase bg-black/5 dark:bg-white/5">Total Deduction</span><span class="px-8 py-1 border border-l-0 border-slate-900 dark:border-slate-700 font-bold text-xs min-w-[120px] text-right bg-black/5 dark:bg-white/5 text-rose-500" id="psTotalDed">0</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-[10px] mt-8 text-center text-slate-500 uppercase tracking-widest font-bold italic">This is a computer generated payslip and does not require a physical signature.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="mt-8 py-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-500 text-sm">
+                <p>© 2026 Employee TDS Management System | Developed by Anish Gupta</p>
+            </footer>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // 🔐 Protect Dashboard - Check Employee Access
+        const loggedInUser = TDS_PORTAL.session.checkAuth("EMPLOYEE");
+        if (loggedInUser) {
+            document.getElementById("userName").innerText = loggedInUser.name;
+            document.getElementById("welcomeName").innerText = loggedInUser.name.split(' ')[0];
+            
+            const userEmailEl = document.getElementById("userEmail");
+            if (userEmailEl) userEmailEl.innerText = loggedInUser.email;
+            
+            // Set initials
+            const initials = loggedInUser.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById("userInitials").innerText = initials;
+        }
+
+        function downloadForm16() {
+            const btn = document.getElementById('downloadForm16Btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 animate-spin"></i> Generating...';
+            
+            setTimeout(() => {
+                const user = TDS_PORTAL.session.getUser();
+                const text = `FORM 16 - Certificate under section 203 of the Income-tax Act, 1961\n\nName: ${user.name}\nEmail: ${user.email}\nAssessment Year: 2025-26\nFinancial Year: 2024-25\n\nThis is a digitized document generated by TDS Portal.`;
+                const blob = new Blob([text], {type: 'text/plain'});
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Form16_AY2025-26_${user.name.replace(' ','_')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                btn.innerHTML = originalHTML;
+                TDS_PORTAL.ui.showToast('Form 16 Downloaded Successfully', 'success');
+                lucide.createIcons();
+            }, 1200);
+        }
+
+        lucide.createIcons();
+
+        // Section Switching Logic
+        // Global Error Handling for Dashboard
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error('Global Error:', msg, url, lineNo, columnNo, error);
+            if (TDS_PORTAL.ui) {
+                TDS_PORTAL.ui.showToast(`System Error: ${msg}`, 'error');
+            }
+            return false;
+        };
+
+        function logout() {
+            if (TDS_PORTAL.session) {
+                TDS_PORTAL.session.logout();
+            } else {
+                localStorage.removeItem("loggedInUser");
+                window.location.href = "index.html";
+            }
+        }
+
+        function showSection(sectionId) {
+            console.log('[Dashboard] Switching to section:', sectionId);
+            
+            // 1. Hide all sections
+            const sections = document.querySelectorAll('.section-content');
+            sections.forEach(s => s.classList.add('hidden'));
+
+            // 2. Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            } else {
+                console.error('[Dashboard] Target section not found:', sectionId);
+                return;
+            }
+
+            // 3. Update Sidebar links highlight
+            document.querySelectorAll('.sidebar-link').forEach(link => {
+                link.classList.remove('active', 'bg-black/10', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white');
+                link.classList.add('text-slate-500', 'dark:text-slate-400');
+            });
+
+            const activeLink = document.getElementById(`link-${sectionId}`);
+            if (activeLink) {
+                activeLink.classList.remove('text-slate-500', 'dark:text-slate-400');
+                activeLink.classList.add('active', 'bg-black/10', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white');
+            }
+
+            // 4. Update Header Title
+            const titles = {
+                'dashboardSection': 'Employee Dashboard',
+                'payslipsSection': 'My Payslips',
+                'taxDeclarationSection': 'Tax Declaration',
+                'form16Section': 'Form 16 Certificate'
+            };
+            const headerTitle = document.getElementById('headerTitle');
+            if (headerTitle && titles[sectionId]) {
+                headerTitle.innerText = titles[sectionId];
+            }
+
+            // 5. Trigger special loaders
+            if (sectionId === 'form16Section') {
+                loadForm16();
+            } else if (sectionId === 'taxDeclarationSection') {
+                loadTaxDeclaration();
+            }
+        }
+
+        async function loadForm16(requestedYear = null) {
+            const container = document.getElementById('form16Content');
+            if (!container) return;
+
+            // Reset to loader if starting fresh
+            container.innerHTML = `
+                <div class="text-center py-20">
+                    <i data-lucide="loader" class="w-12 h-12 text-emerald-500 animate-spin mx-auto mb-4"></i>
+                    <p class="text-slate-500 font-bold uppercase tracking-widest text-sm">Preparing your tax certificate...</p>
+                </div>
+            `;
+            if (window.lucide) lucide.createIcons();
+
+            const user = TDS_PORTAL.session.getUser();
+            if (!user) {
+                container.innerHTML = `<p class="text-center text-rose-500 p-10 font-black uppercase">Session Expired. Please Login Again.</p>`;
+                return;
+            }
+
+            try {
+                const userId = user.id || user._id;
+                const url = requestedYear ? `/api/reports/form16/${userId}?year=${requestedYear}` : `/api/reports/form16/${userId}`;
+                
+                console.log("[Dashboard] Fetching Form 16 from:", url);
+                const res = await fetch(url);
+                
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(errorData.message || `HTTP Error ${res.status}`);
+                }
+                
+                const data = await res.json();
+                console.log("[Dashboard] Form 16 data received successfully");
+                
+                if (!data || !data.availableYears || data.availableYears.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-20 animate-fade-in group">
+                            <div class="w-20 h-20 bg-amber-500/10 rounded-full flex items-center justify-center text-amber-500 mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <i data-lucide="alert-triangle" class="w-10 h-10"></i>
+                            </div>
+                            <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Form 16 Not Available</h3>
+                            <p class="text-slate-500 mt-2 max-w-sm mx-auto font-medium">Your payroll records are not finalized for FY 2024-25 yet. Please contact your HR department.</p>
+                        </div>
+                    `;
+                    if (window.lucide) lucide.createIcons();
+                    return;
+                }
+
+                const payroll = data.payroll || {};
+                const company = data.company || {};
+                const fullUser = data.user || user;
+                const quarters = data.quarters || {};
+                const fmt = (num) => new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0);
+
+                // Build History Navigation
+                const historyTabs = data.availableYears.map(yr => `
+                    <button onclick="loadForm16(${yr})" class="px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${data.targetYear === yr ? 'bg-indigo-500 text-white shadow-xl shadow-indigo-500/40' : 'bg-black/5 dark:bg-white/5 text-slate-500 hover:bg-black/10'} hover-lift">
+                        AY ${yr}-${(yr + 1).toString().slice(-2)}
+                    </button>
+                `).join('');
+
+                container.innerHTML = `
+                    <div class="space-y-8 animate-fade-in">
+                        <!-- History Tabs -->
+                        <div class="flex flex-wrap gap-3 pb-6 border-b border-black/5 dark:border-white/5">
+                            <span class="w-full text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 mb-2">Assessment Year History</span>
+                            ${historyTabs}
+                        </div>
+
+                        <div class="form16-official max-w-5xl mx-auto p-4 sm:p-10 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                            <!-- TRACES Header -->
+                            <div class="flex flex-col sm:flex-row justify-between items-center mb-12 p-8 bg-slate-50 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 space-y-6 sm:space-y-0 relative">
+                                <div class="absolute top-0 left-0 w-1 h-full bg-blue-600 rounded-l-2xl"></div>
+                                <div class="flex items-center">
+                                    <div class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white mr-4 shadow-xl shadow-blue-500/20">
+                                        <i data-lucide="shield-check" class="w-8 h-8"></i>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tighter">TRACES</h2>
+                                        <p class="text-[9px] uppercase tracking-[0.2em] text-slate-500 font-black mt-1">Centralized Processing Cell</p>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <h1 class="text-3xl font-black underline decoration-slate-900/10 underline-offset-[12px] tracking-[0.25em] text-slate-900 dark:text-white uppercase">FORM 16</h1>
+                                    <p class="text-[10px] text-slate-500 font-black mt-4 uppercase tracking-[0.3em]">[Rule 31(1)(a)]</p>
+                                </div>
+                                <div class="text-right flex items-center bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-black/5 dark:border-white/5">
+                                    <div class="mr-4">
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Government of India</p>
+                                        <p class="text-[11px] font-black text-slate-900 dark:text-white uppercase leading-none">Income Tax Dept</p>
+                                    </div>
+                                    <i data-lucide="award" class="w-10 h-10 text-amber-500"></i>
+                                </div>
+                            </div>
+
+                            <div class="mb-10 text-center">
+                                <h2 class="text-xl font-black uppercase text-slate-900 dark:text-white tracking-[0.2em] mb-2">PART A</h2>
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-tight max-w-2xl mx-auto leading-relaxed">Certificate under Section 203 of the Income-tax Act, 1961 for tax deducted at source on salary</p>
+                            </div>
+
+                            <!-- Main Table Grid -->
+                            <div class="overflow-hidden border border-slate-900 dark:border-white/30 rounded-xl">
+                                <table class="f16-table w-full text-xs">
+                                    <tr>
+                                        <td colspan="2" class="w-1/2 p-5 border border-slate-900 dark:border-white/30 bg-slate-50/50 dark:bg-white/5">
+                                            <span class="f16-label">Certificate Number</span>
+                                            <span class="f16-value font-mono text-indigo-500">AY${data.targetYear}TRC${Math.random().toString(36).substring(7).toUpperCase()}</span>
+                                        </td>
+                                        <td colspan="2" class="w-1/2 p-5 border border-slate-900 dark:border-white/30 text-right">
+                                            <span class="f16-label">Generation Date</span>
+                                            <span class="f16-value">${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="p-6 border border-slate-900 dark:border-white/30 h-40">
+                                            <span class="f16-label block mb-4">Deductor (Employer) Details</span>
+                                            <div class="f16-value">
+                                                <p class="text-xl uppercase font-black tracking-tight text-slate-900 dark:text-white">${company.siteName || 'TDS PORTAL SERVICES'}</p>
+                                                <p class="text-[11px] font-semibold text-slate-500 mt-2 uppercase leading-relaxed max-w-sm">${company.companyAddress || 'Bengaluru, Karnataka, India'}</p>
+                                            </div>
+                                        </td>
+                                        <td colspan="2" class="p-6 border border-slate-900 dark:border-white/30 h-40">
+                                            <span class="f16-label block mb-4">Deductee (Employee) Details</span>
+                                            <div class="f16-value">
+                                                <p class="text-xl uppercase font-black tracking-tight text-slate-900 dark:text-white">${fullUser.name}</p>
+                                                <p class="text-[11px] font-semibold text-emerald-500 mt-2 uppercase tracking-widest">${fullUser.designation || 'EMPLOYEE'}</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-center font-bold">
+                                        <td class="p-5 border border-slate-900 dark:border-white/30">
+                                            <span class="f16-label">PAN of Deductor</span>
+                                            <span class="f16-value font-mono tracking-widest mt-1 block">${company.companyPan || 'ABFCA1111F'}</span>
+                                        </td>
+                                        <td class="p-5 border border-slate-900 dark:border-white/30">
+                                            <span class="f16-label">TAN of Deductor</span>
+                                            <span class="f16-value font-mono tracking-widest mt-1 block">${company.tan || 'AHMF00001E'}</span>
+                                        </td>
+                                        <td class="p-5 border border-slate-900 dark:border-white/30">
+                                            <span class="f16-label">PAN of Employee</span>
+                                            <span class="f16-value font-mono tracking-widest mt-1 block">${fullUser.pan || 'PANX0000Y'}</span>
+                                        </td>
+                                        <td class="p-5 border border-slate-900 dark:border-white/30">
+                                            <span class="f16-label">Employee ID</span>
+                                            <span class="f16-value font-mono mt-1 block">${fullUser.employeeId || '-'}</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="p-5 border border-slate-900 dark:border-white/30">
+                                            <span class="f16-label">Assessment Year</span>
+                                            <span class="f16-value text-2xl font-black text-indigo-500 mt-1 block">${data.targetYear}-${(data.targetYear + 1).toString().slice(-2)}</span>
+                                        </td>
+                                        <td colspan="2" class="p-5 border border-slate-900 dark:border-white/30 bg-slate-50 dark:bg-white/5">
+                                            <span class="f16-label">Employment Period</span>
+                                            <div class="flex justify-between items-center mt-2 group">
+                                                <div class="text-center w-1/2 border-r border-slate-200 dark:border-white/10 group-hover:scale-105 transition-transform"><span class="text-[9px] font-black text-slate-400 block uppercase mb-1">From</span><span class="f16-value text-sm">01-Apr-${data.targetYear}</span></div>
+                                                <div class="text-center w-1/2 group-hover:scale-105 transition-transform"><span class="text-[9px] font-black text-slate-400 block uppercase mb-1">To</span><span class="f16-value text-sm">31-Mar-${data.targetYear + 1}</span></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Summary Quarterly Table -->
+                            <div class="mt-10 overflow-hidden rounded-2xl border border-slate-900 dark:border-white/30">
+                                <div class="bg-indigo-600 p-4 text-center">
+                                    <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-white">
+                                        Summary of amount paid/credited and tax deducted at source
+                                    </h3>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-[11px] text-center border-collapse">
+                                        <thead class="bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-500 border-b border-slate-900">
+                                            <tr>
+                                                <th class="p-4 border-r border-slate-900">Quarter(s)</th>
+                                                <th class="p-4 border-r border-slate-900">Quarterly Receipt Number</th>
+                                                <th class="p-4 border-r border-slate-900">Amount Paid (₹)</th>
+                                                <th class="p-4 border-r border-slate-900">Tax Deducted (₹)</th>
+                                                <th class="p-4">Tax Deposited (₹)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="font-bold text-slate-900 dark:text-white">
+                                            ${Object.entries(quarters).map(([key, q]) => `
+                                                <tr class="border-b border-slate-900 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                                    <td class="p-4 border-r border-slate-900 font-black text-indigo-500">${key}</td>
+                                                    <td class="p-4 border-r border-slate-900 font-mono text-[9px] text-slate-500">${q.receipt}</td>
+                                                    <td class="p-4 border-r border-slate-900">${fmt(q.paid)}</td>
+                                                    <td class="p-4 border-r border-slate-900 text-rose-500">${fmt(q.tax)}</td>
+                                                    <td class="p-4 text-emerald-500">${fmt(q.deposited)}</td>
+                                                </tr>
+                                            `).join('')}
+                                            <tr class="bg-indigo-50 dark:bg-indigo-900/40 font-black text-sm">
+                                                <td colspan="2" class="p-5 border-r border-slate-900 text-right uppercase tracking-[0.2em] text-indigo-500">Total (Aggregate)</td>
+                                                <td class="p-5 border-r border-slate-900">${fmt(Object.values(quarters).reduce((acc, q) => acc + q.paid, 0))}</td>
+                                                <td class="p-5 border-r border-slate-900 text-rose-500">${fmt(Object.values(quarters).reduce((acc, q) => acc + q.tax, 0))}</td>
+                                                <td class="p-5 text-emerald-500 underline decoration-double decoration-emerald-500/50 underline-offset-4">${fmt(Object.values(quarters).reduce((acc, q) => acc + q.deposited, 0))}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Part B Link Placeholder -->
+                            <div class="mt-8 p-6 bg-amber-500/5 border border-amber-500/20 rounded-2xl flex items-center justify-between group">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center mr-4 group-hover:rotate-12 transition-transform">
+                                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Part B Annexure Available</p>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase mt-0.5">Salary breakdown & deductions summary</p>
+                                    </div>
+                                </div>
+                                <button onclick="TDS_PORTAL.ui.showToast('Part B is attached below Part A in this view', 'info')" class="px-5 py-2 bg-white dark:bg-slate-800 text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 border border-black/5 dark:border-white/10 rounded-lg hover:shadow-lg transition-all">View Annexure</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (window.lucide) lucide.createIcons();
+
+            } catch (error) {
+                console.error("[Dashboard] Form 16 Render Error:", error);
+                container.innerHTML = `
+                    <div class="text-center py-20 bg-rose-500/5 rounded-[2rem] border border-rose-500/20 m-4">
+                        <div class="w-16 h-16 bg-rose-500/10 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="x-circle" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-xl font-black text-rose-500 uppercase tracking-tight">System Error</h3>
+                        <p class="text-slate-500 mt-2 font-medium max-w-sm mx-auto">${error.message}. Please try refreshing or contact support.</p>
+                        <button onclick="loadForm16()" class="mt-6 px-8 py-3 bg-rose-500 text-white font-black uppercase rounded-xl shadow-lg shadow-rose-500/20 hover:scale-105 transition-transform">Retry Now</button>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+
+        async function loadTaxDeclaration() {
+            const user = TDS_PORTAL.session.getUser();
+            if (!user) return;
+            const container = document.getElementById('taxDeclarationSection');
+            if (!container) return;
+
+            try {
+                const currentUser = await TDS_PORTAL.db.getUser(user.id || user._id);
+                if (!currentUser) return;
+
+                const regimeDisplay = document.getElementById('currentRegimeDisplay');
+                if (regimeDisplay) {
+                    regimeDisplay.innerText = currentUser.taxRegime === 'OLD' ? 'Old tax regime' : 'New tax regime';
+                }
+
+                // If I had dynamic values for the table, I'd update them here.
+                // For now, I'll just update the "current chosen regime" text in the HTML if I added an ID to it.
+                const statusRegime = container.querySelector('.regime-status-text');
+                if (statusRegime) {
+                    statusRegime.innerHTML = `Your current chosen regime is <span class="text-slate-900 dark:text-white font-black border-b-2 border-emerald-500">${currentUser.taxRegime === 'OLD' ? 'Old tax regime' : 'New tax regime'}</span>.`;
+                }
+
+            } catch (error) {
+                console.error("Error loading tax declaration:", error);
+            }
+        }
+
+        // Charts
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPayrollData();
+        });
+
+        async function loadPayrollData() {
+            const user = TDS_PORTAL.session.getUser();
+            if (!user) return;
+
+            try {
+                const userId = user.id || user._id;
+                const payrolls = await TDS_PORTAL.db.getUserPayroll(userId);
+                if (payrolls && payrolls.length > 0) {
+                    const latest = payrolls[0]; // Sorted by createdAt desc in backend
+                    
+                    // Update Stats
+                    const format = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+                    
+                    document.getElementById('statCTC').innerText = format(latest.ctc);
+                    document.getElementById('statTotalTax').innerText = format(latest.totalTax);
+                    document.getElementById('statMonthlyTDS').innerText = format(latest.totalTax / 12);
+                    document.getElementById('statRegime').innerText = latest.taxRegime === 'new' ? 'New' : 'Old';
+                    
+                    // Update Welcome Section to show income if needed
+                    // (Optional)
+
+                    // Init Chart with real data
+                    initTDSChart(latest);
+
+                    // Update Payslips Tables (Dashboard & Full View)
+                    const tableBody = document.getElementById('payslipsTableBody');
+                    const fullTableBody = document.getElementById('fullPayslipsTableBody');
+                    
+                    const generateRowHtml = (p) => {
+                        const monthlyTax = p.totalTax / 12;
+                        const ptAndEpf = (p.professionalTax || 0) / 12 + (p.epf || 0) / 12;
+                        
+                        return `
+                        <tr class="hover:bg-black/5 dark:bg-white/5 transition-colors group text-sm">
+                            <td class="px-8 py-5 font-bold text-slate-900 dark:text-white flex items-center">
+                                <i data-lucide="file-text" class="w-4 h-4 mr-3 text-slate-400"></i>
+                                ${p.month} ${p.year}
+                            </td>
+                            <td class="px-8 py-5 text-slate-700 dark:text-slate-300">${format(p.ctc / 12)}</td>
+                            <td class="px-8 py-5 text-rose-500 font-bold">${format(monthlyTax)}</td>
+                            <td class="px-8 py-5 text-slate-500">${format(ptAndEpf)}</td>
+                            <td class="px-8 py-5 text-emerald-500 font-black">${format(p.salary)}</td>
+                            <td class="px-8 py-5 text-right">
+                                <button onclick='viewFullPayslip(${JSON.stringify(p)})' class="p-2 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-500 hover:text-white rounded-lg transition-all border border-indigo-500/20" title="View Detailed Statement">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="window.location.href='/api/reports/individual-payslip/${p._id}'" class="p-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white rounded-lg transition-all border border-emerald-500/20 ml-2" title="Download PDF">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        `;
+                    };
+
+                    const recentPayrolls = payrolls.slice(0, 5);
+                    if (tableBody) tableBody.innerHTML = recentPayrolls.map(generateRowHtml).join('');
+                    if (fullTableBody) fullTableBody.innerHTML = payrolls.map(generateRowHtml).join('');
+                    
+                    lucide.createIcons();
+                } else {
+                    // Default Chart if no payroll data
+                    initTDSChart({ totalTax: 42000 });
+                }
+            } catch (error) {
+                console.error("Error loading payroll data:", error);
+                initTDSChart({ totalTax: 42000 });
+            }
+        }
+
+        function initTDSChart(data) {
+            const tdsCtx = document.getElementById('tdsChart');
+            if (!tdsCtx) return;
+
+            // Simple breakdown: 85% base, 4% cess, 11% others (approx)
+            const baseTax = data.totalTax * 0.96;
+            const cess = data.totalTax * 0.04;
+
+            if (window.myTdsChart) window.myTdsChart.destroy();
+
+            window.myTdsChart = new Chart(tdsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Base TDS', 'Health & Education Cess'],
+                    datasets: [{
+                        data: [baseTax, cess],
+                        backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(59, 130, 246, 0.6)'],
+                        borderColor: ['#10b981', '#3b82f6'],
+                        borderWidth: 1,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 10 }, usePointStyle: true, padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Payslip Modal Logic
+        async function viewFullPayslip(p) {
+            const modal = document.getElementById('fullPayslipModal');
+            const user = TDS_PORTAL.session.getUser();
+            const settings = await TDS_PORTAL.db.getSettings();
+
+            const fmt = (num) => new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num || 0);
+
+            // Populate Info
+            document.getElementById('psCompanyName').innerText = settings.siteName || 'TDS PORTAL';
+            document.getElementById('psPeriod').innerText = `Salary slip for ${p.month} ${p.year}`;
+            document.getElementById('psName').innerText = user.name;
+            document.getElementById('psDept').innerText = user.department || 'Operations';
+            document.getElementById('psDesig').innerText = user.designation || 'Specialist';
+            document.getElementById('psLoc').innerText = 'Bengaluru, India';
+            document.getElementById('psBank').innerText = 'Standard Chartered Bank';
+            document.getElementById('psAcc').innerText = 'XXXXXX' + (user.id || '4521').slice(-4);
+
+            // Populate Earnings
+            document.getElementById('psBasic').innerText = fmt(p.basicSalary);
+            document.getElementById('psHra').innerText = fmt(p.hra);
+            document.getElementById('psAlw').innerText = fmt(p.allowances);
+            document.getElementById('psBonus').innerText = fmt(p.bonus);
+
+            // Populate Deductions
+            const professionalTax = 200;
+            const epf = Math.min(1800, p.basicSalary * 0.12);
+            const tds = p.totalTax / 12;
+            document.getElementById('psTds').innerText = fmt(tds);
+
+            // Totals
+            const gross = (p.ctc / 12) + (p.bonus || 0);
+            const totalDed = professionalTax + epf + tds;
+            const net = gross - totalDed;
+
+            document.getElementById('psGross').innerText = fmt(gross);
+            document.getElementById('psCtcPM').innerText = fmt(p.ctc / 12);
+            document.getElementById('psNet').innerText = fmt(net);
+            document.getElementById('psTotalDed').innerText = fmt(totalDed);
+            document.getElementById('psDays').innerText = p.paidDays || 30;
+
+            modal.classList.remove('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function closePayslipModal() {
+            document.getElementById('fullPayslipModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

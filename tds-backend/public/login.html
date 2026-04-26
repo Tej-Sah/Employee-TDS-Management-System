@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | TDS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <!-- Theme Toggle -->
+    <div class="absolute top-6 right-6 z-50">
+        <button onclick="TDS_PORTAL.ui.toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white relative transition-colors bg-white/50 dark:bg-black/20 rounded-xl border border-black/10 dark:border-white/10 shadow-sm backdrop-blur-md">
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+    </div>
+
+    <!-- Animated Background Elements -->
+    <div class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="relative z-10 w-full max-w-md animate-fade-in">
+        <!-- Back Button -->
+        <a href="index.html" class="flex items-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white mb-8 transition-colors group">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i>
+            Back to Home
+        </a>
+
+        <div class="glass-card p-8 shadow-2xl">
+            <div class="flex flex-col items-center mb-8">
+                <div class="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <i data-lucide="lock" class="w-8 h-8 text-blue-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome back</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-2 text-center">Enter your credentials to access the portal</p>
+            </div>
+
+            <form class="space-y-4" onsubmit="event.preventDefault(); login();">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="email" id="loginEmail" 
+                            class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                            placeholder="name@company.com">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1.5 ml-1">
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
+                        <a href="#" class="text-xs text-blue-400 hover:text-blue-300">Forgot password?</a>
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="key-round" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="password" id="loginPassword" 
+                            class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full btn-primary mt-4">
+                    Sign In to Portal
+                </button>
+            </form>
+
+            <div id="signupOption" class="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                <span id="signupText"></span>
+            </div>
+
+            <footer class="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-500 text-[10px] uppercase tracking-widest">
+                <p>© 2026 Employee TDS Management System | Developed by Anish Gupta</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+  lucide.createIcons();
+
+  function showLoginError(message) {
+    alert(message); // fallback if TDS_PORTAL not working
+  }
+
+  // Always clear existing session when reaching the login page
+  localStorage.removeItem("loggedInUser");
+
+  async function login() {
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+    const password = document.getElementById("loginPassword").value;
+    const btn = document.querySelector("button");
+
+    console.log("Login clicked");
+    console.log("Email:", email);
+    console.log("Password:", password);
+
+    if (!email || !password) {
+      showLoginError("Enter email and password");
+      return;
+    }
+
+    btn.innerText = "Logging in...";
+    btn.disabled = true;
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      console.log("Response status:", res.status);
+
+      const data = await res.json();
+      console.log("Response data:", data);
+
+      btn.innerText = "Sign In to Portal";
+      btn.disabled = false;
+
+      if (res.ok) {
+        // Save user
+        console.log(data.user.role)
+        localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+
+        // Redirect based on role
+        if (data.user.role === "HR") {
+          window.location.href = "hr-dashboard.html";
+        } 
+        else {
+          window.location.href = "dashboard.html";
+        }
+
+      } else {
+        showLoginError(data.message || "Login failed");
+      }
+
+    } catch (error) {
+      console.log("Fetch error:", error);
+      showLoginError("Server not responding");
+      btn.innerText = "Sign In to Portal";
+      btn.disabled = false;
+    }
+  }
+</script>

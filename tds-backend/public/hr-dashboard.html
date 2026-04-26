@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard | TDS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 glass-card border-none flex flex-col hidden md:flex shrink-0 sidebar-animate m-4 mr-0 rounded-2xl overflow-hidden z-50">
+        <div class="p-6 border-b border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="users" class="text-slate-900 dark:text-white w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TDS Portal</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scrollbar px-3">
+            <a href="javascript:void(0)" onclick="showSection('dashboardSection')" id="link-dashboardSection" class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium transition-all duration-200 rounded-xl">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3"></i> Dashboard
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('employeeListSection')" id="link-employeeListSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="users" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Employee List
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('addEmployeeSection')" id="link-addEmployeeSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="user-plus" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Add Employee
+            </a>
+
+            <a href="javascript:void(0)" onclick="showSection('payrollCalculatorSection')" id="link-payrollCalculatorSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="calculator" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Payroll Calculator
+            </a>
+            <a href="javascript:void(0)" onclick="showSection('reportsSection')" id="link-reportsSection" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="file-bar-chart" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> TDS Reports
+            </a>
+
+        </nav>
+
+        <div class="p-6 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <button onclick="logout()" class="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200 group">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="h-20 flex items-center justify-between px-8 sticky top-0 z-40">
+            <div class="glass-card w-full h-16 flex items-center justify-between px-6 mt-4">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">HR Dashboard</h2>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+
+                    <div class="flex items-center space-x-4">
+
+                        
+                        <!-- Theme Toggle Button -->
+                        <button onclick="TDS_PORTAL.ui.toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white relative transition-colors bg-black/5 dark:bg-white/5 rounded-xl border border-black/10 dark:border-white/10">
+                            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                        </button>
+
+                        <div class="h-8 w-px bg-black/10 dark:bg-white/10"></div>
+                        
+                        <!-- Profile Dropdown -->
+                        <div class="relative">
+                            <button id="profileBtn" onclick="TDS_PORTAL.session.toggleProfileDropdown()" class="flex items-center space-x-3 p-1 rounded-xl hover:bg-black/10 dark:bg-white/10 transition-all duration-200 group border border-transparent hover:border-black/10 dark:border-white/10">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-slate-900 dark:text-white font-bold text-sm shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                                    HR
+                                </div>
+                                <div class="text-left hidden sm:block pr-2">
+                                    <p class="text-sm font-bold text-slate-900 dark:text-white leading-none" id="userName">HR Manager</p>
+                                    <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Human Resources</p>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:text-slate-900 dark:text-white transition-colors mr-1"></i>
+                            </button>
+
+                            <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-56 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden z-[100] animate-fade-in">
+                                <div class="p-2">
+                                    <div class="px-4 py-3 border-b border-black/10 dark:border-white/10 mb-2">
+                                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Signed in as</p>
+                                        <p class="text-sm font-bold text-slate-900 dark:text-white truncate" id="userEmail">hr@tdsportal.com</p>
+                                    </div>
+                                    <button onclick="TDS_PORTAL.ui.showMyProfile()" class="w-full flex items-center px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-black/10 dark:bg-white/10 rounded-xl transition-colors group">
+                                        <i data-lucide="user" class="w-4 h-4 mr-3 text-slate-500 group-hover:text-indigo-500 transition-colors"></i> My Profile
+                                    </button>
+
+                                    <div class="h-px bg-black/10 dark:bg-white/10 my-2 mx-2"></div>
+                                    <button onclick="logout()" class="flex items-center w-full px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-colors group">
+                                        <i data-lucide="log-out" class="w-4 h-4 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <!-- Payroll Calculator Section -->
+            <div id="payrollCalculatorSection" class="section-content" style="display: none;">
+                <!-- 1. Input Section -->
+                <div class="glass-card p-8 mb-8 border border-black/10 dark:border-white/10 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center mb-8">
+                            <i data-lucide="settings" class="w-6 h-6 mr-3 text-indigo-500"></i>
+                            Calculator Configuration
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Employee Selection</label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <select id="employeeSelectCalculator" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm">
+                                        <option value="">Select Employee...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Annual Salary (CTC)</label>
+                                <div class="relative">
+                                    <i data-lucide="indian-rupee" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <input type="number" id="annualCtcCalculator" placeholder="e.g. 12,00,000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tax Regime</label>
+                                <div class="relative">
+                                    <i data-lucide="shield-check" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <select id="taxRegimeCalculator" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 transition-all">
+                                        <option value="new">New Regime</option>
+                                        <option value="old">Old Regime</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="calculateTDSDashboard()" class="w-full btn-indigo py-3 rounded-xl font-bold flex items-center justify-center shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all">
+                                    <i data-lucide="calculator" class="w-5 h-5 mr-2"></i> Compute Tax
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="additionalComponentsCalculator" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-black/5 dark:border-white/5">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Dearness Allowance (DA)</label>
+                                <div class="relative">
+                                    <i data-lucide="coins" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-400"></i>
+                                    <input type="number" id="dearnessAllowanceCalculator" placeholder="e.g. 4000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-400 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Medical Allowance (Monthly)</label>
+                                <div class="relative">
+                                    <i data-lucide="plus-square" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500"></i>
+                                    <input type="number" id="medicalAllowanceCalculator" placeholder="e.g. 2000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Convenience Allowance</label>
+                                <div class="relative">
+                                    <i data-lucide="car" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-500"></i>
+                                    <input type="number" id="convenienceAllowanceCalculator" placeholder="e.g. 1600" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Special Allowance</label>
+                                <div class="relative">
+                                    <i data-lucide="star" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500"></i>
+                                    <input type="number" id="specialAllowanceCalculator" placeholder="e.g. 5000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-amber-500 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Employee Provided Fund (EPF)</label>
+                                <div class="relative">
+                                    <i data-lucide="piggy-bank" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-500"></i>
+                                    <input type="number" id="epfCalculator" placeholder="e.g. 1800" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Professional Tax (PT)</label>
+                                <div class="relative">
+                                    <i data-lucide="shield-alert" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-rose-500"></i>
+                                    <input type="number" id="profTaxCalculator" placeholder="e.g. 200" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-rose-500 transition-all font-medium text-sm">
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Days Worked</label>
+                                <div class="relative">
+                                    <i data-lucide="calendar-check" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-500"></i>
+                                    <input type="number" id="workedDaysCalculator" value="30" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-bold text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="deductionsDivCalculator" class="hidden grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 pt-6 border-t border-black/5 dark:border-white/5">
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">80C Deductions (Max 1.5L)</label>
+                                <input type="number" id="sec80cCalculator" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-900 dark:text-white text-sm" placeholder="₹0">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Home Loan Interest (Max 2L)</label>
+                                <input type="number" id="homeLoanCalculator" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-900 dark:text-white text-sm" placeholder="₹0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Summary Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-card p-6 border-l-4 border-indigo-500 bg-indigo-500/5">
+                        <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Monthly Gross Pay</p>
+                        <h2 id="resMonthlyGrossCalc" class="text-3xl font-black text-slate-900 dark:text-white">₹0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-rose-500 bg-rose-500/5">
+                        <p class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-2">Monthly TDS Deduction</p>
+                        <h2 id="resMonthlyTDSCalc" class="text-3xl font-black text-slate-900 dark:text-white">₹0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-emerald-500 bg-emerald-500/5">
+                        <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-2">Monthly Take Home</p>
+                        <h2 id="resNetSalaryCalc" class="text-3xl font-black text-slate-900 dark:text-white">₹0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-slate-500 bg-slate-500/5">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Taxable Income (Yearly)</p>
+                        <h2 id="resTaxableCalc" class="text-2xl font-black text-slate-900 dark:text-white">₹0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-rose-500 bg-rose-500/5">
+                        <p class="text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-2">Total Tax Liability</p>
+                        <h2 id="resTotalTaxCalc" class="text-2xl font-black text-rose-500">₹0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-l-4 border-indigo-500 bg-indigo-500/5">
+                        <p class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mb-2">Active Tax Regime</p>
+                        <h2 id="resRegimeApplied" class="text-xl font-black text-slate-900 dark:text-white">None Selected</h2>
+                    </div>
+                </div>
+
+                <!-- 3. Comparison Tool -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div class="glass-card overflow-hidden border border-black/10 dark:border-white/10">
+                        <div class="p-6 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center">
+                                <i data-lucide="list-checks" class="w-5 h-5 mr-3 text-emerald-500"></i> Selected Component
+                            </h3>
+                        </div>
+                        <div class="p-0">
+                            <table class="w-full text-left">
+                                <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                                    <tr>
+                                        <td class="px-8 py-4 text-sm font-medium text-slate-500">Employee Reference</td>
+                                        <td id="resEmployeeRefCalc" class="px-8 py-4 text-right font-bold text-indigo-500 uppercase tracking-tight"> - </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-8 py-4 text-sm font-medium text-slate-500">Net Taxable Income</td>
+                                        <td id="resTaxableCalcTable" class="px-8 py-4 text-right font-bold text-slate-900 dark:text-white">₹0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-8 py-4 text-sm font-medium text-slate-500">Total Annual Tax</td>
+                                        <td id="resTotalTaxCalcTable" class="px-8 py-4 text-right font-bold text-rose-500">₹0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-8 py-4 text-sm font-medium text-slate-500 text-[10px] uppercase tracking-tighter text-indigo-500">Regime Applied</td>
+                                        <td id="resRegimeAppliedTable" class="px-8 py-4 text-right font-bold text-indigo-500 uppercase"> - </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card overflow-hidden border border-black/10 dark:border-white/10">
+                        <div class="p-6 border-b border-black/5 dark:border-white/5 bg-black/5 dark:bg-white/5 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center">
+                                <i data-lucide="split" class="w-5 h-5 mr-3 text-indigo-500"></i> Regime Comparison
+                            </h3>
+                            <span id="comparisonBestTag" class="hidden px-4 py-1.5 bg-indigo-500 text-white text-[10px] font-black uppercase rounded-full shadow-lg">NEW is Better</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs">
+                                <thead class="bg-black/5 dark:bg-white/5 uppercase text-[9px] font-bold tracking-widest text-slate-500">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left">Metric</th>
+                                        <th class="px-6 py-4 text-center">New Regime</th>
+                                        <th class="px-6 py-4 text-center">Old Regime</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-black/5 dark:divide-white/5 text-slate-700 dark:text-slate-300">
+                                    <tr>
+                                        <td class="px-6 py-4">Net Taxable</td>
+                                        <td id="compTaxableNew" class="px-6 py-4 text-center">₹0</td>
+                                        <td id="compTaxableOld" class="px-6 py-4 text-center">₹0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4">Annual Tax</td>
+                                        <td id="compTaxNew" class="px-6 py-4 text-center font-black text-rose-500">₹0</td>
+                                        <td id="compTaxOld" class="px-6 py-4 text-center font-black text-rose-500">₹0</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 text-indigo-500 font-bold">Monthly Take-Home</td>
+                                        <td id="compNetNew" class="px-6 py-4 text-center font-black">₹0</td>
+                                        <td id="compNetOld" class="px-6 py-4 text-center font-black">₹0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Actions -->
+                <div class="flex flex-col items-center space-y-4">
+                    <button onclick="generateIndividualPayslip()" class="btn-indigo px-10 py-5 rounded-3xl font-black text-xl flex items-center shadow-2xl">
+                        <i data-lucide="printer" class="w-6 h-6 mr-3"></i> GENERATE PAYSLIP
+                    </button>
+                    <button onclick="savePayrollAndForm16()" class="bg-emerald-500 text-white px-8 py-3 rounded-xl font-bold flex items-center shadow-lg">
+                        <i data-lucide="check-circle" class="w-6 h-6 mr-3"></i> SAVE & FINALIZE
+                    </button>
+                </div>
+            </div>
+
+            <!-- TDS Reports Section (Restored & Optimized) -->
+            <div id="reportsSection" class="section-content" style="display: none;">
+                <div class="glass-card overflow-hidden">
+                    <div class="p-8 border-b border-black/10 dark:border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0 bg-black/5 dark:bg-white/5">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center">
+                                <i data-lucide="file-bar-chart" class="w-6 h-6 mr-3 text-indigo-500"></i>
+                                TDS Comprehensive Report
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Detailed breakdown of tax deductions and gross earnings.</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="loadTDSReports()" class="btn-ghost p-2.5 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 text-slate-500 transition-all font-bold flex items-center shadow-lg" title="Refresh Report Data">
+                                <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i> Refresh
+                            </button>
+                            <button onclick="exportPayroll('pdf')" class="btn-indigo px-6 py-2.5 rounded-xl font-bold flex items-center shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all">
+                                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-black/10 dark:bg-white/5 uppercase text-[10px] font-bold tracking-widest text-slate-500">
+                                <tr>
+                                    <th class="px-8 py-5">ID</th>
+                                    <th class="px-8 py-5">Employee Name</th>
+                                    <th class="px-8 py-5">Paid Days</th>
+                                    <th class="px-8 py-5">Gross Pay</th>
+                                    <th class="px-8 py-5">Deduction</th>
+                                    <th class="px-8 py-5">Monthly TDS</th>
+                                    <th class="px-8 py-5">Total Tax (Annual)</th>
+                                    <th class="px-8 py-5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tdsReportTableBody" class="divide-y divide-black/5 dark:divide-white/5">
+                                <!-- Populated by JS -->
+                                <tr>
+                                    <td colspan="7" class="px-8 py-12 text-center text-slate-500">
+                                        <div class="flex flex-col items-center">
+                                            <i data-lucide="loader" class="w-8 h-8 mb-4 animate-spin opacity-50"></i>
+                                            <p>Loading report data...</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dashboardSection" class="section-content animate-fade-in" style="display: block;">
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card p-8 border-l-4 border-indigo-500 bg-indigo-500/5 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-500 shadow-lg shadow-indigo-500/10">
+                                <i data-lucide="users" class="w-8 h-8"></i>
+                            </div>
+                            <span class="text-emerald-500 text-xs font-bold bg-emerald-500/10 px-3 py-1 rounded-full flex items-center">
+                                <i data-lucide="trending-up" class="w-3 h-3 mr-1"></i> Active
+                            </span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Total Employees</h3>
+                        <p class="text-3xl font-black text-slate-900 dark:text-white mt-2" id="statEmployees">0</p>
+                    </div>
+
+                    <div class="glass-card p-8 border-l-4 border-emerald-500 bg-emerald-500/5 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 shadow-lg shadow-emerald-500/10">
+                                <i data-lucide="banknote" class="w-8 h-8"></i>
+                            </div>
+                            <span class="text-emerald-500 text-[10px] font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">Monthly</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Payroll Disbursed</h3>
+                        <p class="text-3xl font-black text-slate-900 dark:text-white mt-2" id="statPayroll">₹0</p>
+                    </div>
+
+                    <div class="glass-card p-8 border-l-4 border-rose-500 bg-rose-500/5 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 shadow-lg shadow-rose-500/10">
+                                <i data-lucide="percent" class="w-8 h-8"></i>
+                            </div>
+                            <span class="text-rose-500 text-[10px] font-bold bg-rose-500/10 px-2 py-0.5 rounded-full">Projected</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">TDS Collection</h3>
+                        <p class="text-3xl font-black text-slate-900 dark:text-white mt-2" id="statTds">₹0</p>
+                    </div>
+
+                    <div class="glass-card p-8 border-l-4 border-amber-500 bg-amber-500/5 hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-14 h-14 bg-amber-500/10 rounded-2xl flex items-center justify-center text-amber-500 shadow-lg shadow-amber-500/10">
+                                <i data-lucide="alert-circle" class="w-8 h-8"></i>
+                            </div>
+                            <span class="text-amber-500 text-[10px] font-bold bg-amber-500/10 px-2 py-0.5 rounded-full">Attention</span>
+                        </div>
+                        <h3 class="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-widest">Pending Filings</h3>
+                        <p class="text-3xl font-black text-slate-900 dark:text-white mt-2" id="statPending">0</p>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+                    <!-- Quick Stats/Chart -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="glass-card p-8 relative overflow-hidden group hover-lift">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full -mr-32 -mt-32 blur-3xl group-hover:bg-indigo-500/10 transition-colors duration-500"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center justify-between mb-8">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">HR Performance Overview</h3>
+                                        <p class="text-slate-500 dark:text-slate-400 text-sm">System compliance and employee engagement</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <span class="px-3 py-1 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full">Monthly</span>
+                                    </div>
+                                </div>
+                                <div class="h-[300px]">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Sidebar Info -->
+                    <div class="space-y-8">
+                        <!-- Chart Card -->
+                        <div class="glass-card p-8 relative overflow-hidden group hover-lift">
+                            <div class="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 rounded-full -mr-24 -mt-24 blur-3xl group-hover:bg-blue-500/10 transition-colors duration-500"></div>
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-6 flex items-center text-sm relative z-10">
+                                <i data-lucide="pie-chart" class="w-4 h-4 mr-2 text-blue-500"></i>
+                                TDS Compliance
+                            </h3>
+                            <div class="h-[200px] relative z-10">
+                                <canvas id="hrChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Upcoming Deadlines -->
+                        <div class="glass-card p-8 border-l-4 border-amber-500 bg-amber-500/5 hover-lift">
+                            <h3 class="font-bold text-slate-900 dark:text-white mb-6 flex items-center text-sm">
+                                <i data-lucide="calendar" class="w-4 h-4 mr-2 text-amber-500"></i>
+                                Upcoming TDS Deadlines
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900/50 rounded-xl border border-amber-500/10 shadow-sm">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white">Quarterly TDS Return</p>
+                                        <p class="text-[10px] text-slate-500">Form 24Q - Q4 Filings</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded-lg">April 30, 2026</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-white/5">
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-900 dark:text-white">Monthly Deposit</p>
+                                        <p class="text-[10px] text-slate-500">TDS for Mar 2026</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-slate-500/10 text-slate-500 text-[10px] font-bold rounded-lg">April 07, 2026</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee List Section -->
+            <div id="employeeListSection" class="section-content hidden animate-fade-in">
+                <div class="glass-card overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-xl flex items-center">
+                                <i data-lucide="users" class="w-6 h-6 mr-3 text-indigo-500"></i>
+                                Employee Directory
+                            </h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage and view all registered employees</p>
+                        </div>
+                        <div class="flex space-x-3 items-center">
+                            <button onclick="initHRDashboard()" class="p-2.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors text-slate-500 dark:text-slate-400 flex items-center justify-center border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50" title="Refresh list">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                            <div class="relative">
+                                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                <input type="text" placeholder="Search..." class="bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-indigo-500 w-48 text-slate-900 dark:text-white outline-none">
+                            </div>
+                            <button onclick="showSection('addEmployeeSection')" class="btn-indigo py-2 px-6">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2"></i> Add New
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 uppercase text-[10px] tracking-widest">
+                                <tr>
+                                    <th class="px-8 py-5 font-bold">ID</th>
+                                    <th class="px-8 py-5 font-bold">Employee</th>
+                                    <th class="px-8 py-5 font-bold">Email Address</th>
+                                    <th class="px-8 py-5 font-bold">Status</th>
+                                    <th class="px-8 py-5 font-bold">Joined Date</th>
+                                    <th class="px-8 py-5 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody" class="divide-y divide-slate-800">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Employee Section -->
+            <div id="addEmployeeSection" class="section-content hidden animate-fade-in">
+                <div class="max-w-2xl mx-auto">
+                    <div class="glass-card overflow-hidden">
+                        <div class="p-8 border-b border-slate-200 dark:border-slate-800 bg-black/5 dark:bg-white/5">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-500 shadow-lg shadow-indigo-500/10">
+                                    <i data-lucide="user-plus" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Register New Employee</h3>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm">Fill in the details to create a new employee account.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-8 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                                    <div class="relative">
+                                        <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="text" id="addEmpName" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm"
+                                            placeholder="John Doe">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                                    <div class="relative">
+                                        <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="email" id="addEmpEmail" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm"
+                                            placeholder="name@company.com">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">PAN Number</label>
+                                    <div class="relative">
+                                        <i data-lucide="credit-card" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="text" id="addEmpPan" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm"
+                                            placeholder="ABCDE1234F">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Designation</label>
+                                    <div class="relative">
+                                        <i data-lucide="briefcase" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="text" id="addEmpDesignation" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium text-sm"
+                                            placeholder="Software Engineer">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Password</label>
+                                    <div class="relative">
+                                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="password" id="addEmpPassword" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                                            placeholder="••••••••">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">Confirm Password</label>
+                                    <div class="relative">
+                                        <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="password" id="addEmpConfirmPassword" 
+                                            class="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
+                                            placeholder="••••••••">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-amber-500/5 border border-amber-500/10 rounded-xl flex items-start space-x-3 mt-4">
+                                <i data-lucide="alert-circle" class="w-5 h-5 text-amber-500 shrink-0 mt-0.5"></i>
+                                <p class="text-xs text-amber-600 dark:text-amber-400 font-medium leading-relaxed">
+                                    New employees will be created with the <strong>EMPLOYEE</strong> role by default. They can log in using their email and the password set here.
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end pt-4 space-x-4">
+                                <button onclick="showSection('employeeListSection')" class="px-8 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all">
+                                    Cancel
+                                </button>
+                                <button onclick="addNewEmployeeFromDashboard()" id="addEmpBtn" class="btn-indigo px-10 py-3 rounded-xl font-bold shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all flex items-center">
+                                    <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i> Create Account
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+            <!-- Payroll Calculator Section -->
+
+
+
+            <!-- Footer -->
+            <footer class="mt-8 py-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-500 text-sm">
+                <p>© 2026 Employee TDS Management System | Developed by Anish Gupta</p>
+                <div class="mt-2 flex items-center justify-center space-x-4">
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Privacy Policy</a>
+                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Terms of Service</a>
+                    <span class="w-1 h-1 bg-slate-700 rounded-full"></span>
+                    <a href="#" class="hover:text-indigo-500 transition-colors">Help Center</a>
+                </div>
+            </footer>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // 🔐 Protect Dashboard - Check HR Access
+        const loggedInUser = TDS_PORTAL.session.checkAuth("HR");
+        if (loggedInUser) {
+            document.getElementById("userName").innerText = loggedInUser.name;
+            const userEmailEl = document.getElementById("userEmail");
+            if (userEmailEl) userEmailEl.innerText = loggedInUser.email;
+        }
+
+        // 🟢 Section Switching Logic
+        window.showSection = function(sectionId) {
+            console.log("Switching to section:", sectionId);
+            try {
+                // Hide ALL sections forcefully using inline style
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.style.display = 'none';
+                    section.classList.add('hidden');
+                });
+
+                // Show target section directly
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                    targetSection.classList.remove('hidden');
+                    console.log("Section revealed via style.display:", sectionId);
+                } else {
+                    console.error("Target section not found by ID:", sectionId);
+                }
+
+                // Update sidebar link styles
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('bg-black/10', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'active');
+                    link.classList.add('text-slate-500', 'dark:text-slate-400', 'bg-transparent');
+                });
+
+                // Set active link style
+                const activeLink = document.getElementById(`link-${sectionId}`);
+                if (activeLink) {
+                    activeLink.classList.remove('text-slate-500', 'dark:text-slate-400', 'bg-transparent');
+                    activeLink.classList.add('bg-black/10', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'active');
+                }
+
+                // Header Title Logic
+                const titles = {
+                    'dashboardSection': 'HR Dashboard',
+                    'employeeListSection': 'Employee Directory',
+                    'addEmployeeSection': 'Add New Employee',
+                    'payrollCalculatorSection': 'Payroll TDS Calculator',
+                    'reportsSection': 'TDS Reports & Analytics'
+                };
+                const headerTitle = document.querySelector('header h2');
+                if (headerTitle) headerTitle.innerText = titles[sectionId] || 'Portal';
+
+                // Specific Loaders
+                if (sectionId === 'payrollCalculatorSection' && typeof window.loadEmployeesCalculator === 'function') window.loadEmployeesCalculator();
+                if (sectionId === 'reportsSection' && typeof window.loadTDSReports === 'function') window.loadTDSReports();
+                if (sectionId === 'employeeListSection') initHRDashboard();
+
+                if (window.lucide) lucide.createIcons();
+            } catch (err) {
+                console.error("Critical Section Switch Error:", err);
+            }
+        }
+
+        // --- Add New Employee Logic ---
+        async function addNewEmployeeFromDashboard() {
+            const btn = document.getElementById('addEmpBtn');
+            const originalContent = btn.innerHTML;
+            
+            try {
+                const name = document.getElementById('addEmpName').value.trim();
+                const email = document.getElementById('addEmpEmail').value.trim().toLowerCase();
+                const password = document.getElementById('addEmpPassword').value;
+                const confirm = document.getElementById('addEmpConfirmPassword').value;
+                const pan = document.getElementById('addEmpPan').value.trim().toUpperCase();
+                const designation = document.getElementById('addEmpDesignation').value.trim() || 'Employee';
+
+                if (!name || !email || !password || !confirm) {
+                    TDS_PORTAL.ui.showToast("All fields are required", "error");
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    TDS_PORTAL.ui.showToast("Please enter a valid email address", "error");
+                    return;
+                }
+
+                if (password !== confirm) {
+                    TDS_PORTAL.ui.showToast("Passwords do not match", "error");
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 mr-2 animate-spin"></i> Creating...';
+                lucide.createIcons();
+
+                const res = await fetch("/api/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        pan,
+                        designation,
+                        role: "EMPLOYEE",
+                        createdBy: "HR"
+                    })
+                });
+
+                if (!res.ok) {
+                    const error = await res.json();
+                    throw new Error(error.message || "Failed to create account");
+                }
+
+                TDS_PORTAL.ui.showToast("Employee account created successfully", "success");
+                
+                // Reset form
+                document.getElementById('addEmpName').value = '';
+                document.getElementById('addEmpEmail').value = '';
+                document.getElementById('addEmpPassword').value = '';
+                document.getElementById('addEmpConfirmPassword').value = '';
+                document.getElementById('addEmpPan').value = '';
+                document.getElementById('addEmpDesignation').value = '';
+
+                // Go back to employee list
+                setTimeout(() => {
+                    showSection('employeeListSection');
+                    initHRDashboard(); // Refresh list
+                }, 1000);
+
+            } catch (error) {
+                console.error("Add employee error:", error);
+                TDS_PORTAL.ui.showToast(error.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                lucide.createIcons();
+            }
+        }
+
+        // --- Global Tax Calculation Engine ---
+        function runTaxEngine(ctc, regime, sec80c, homeLoan, epf = 0, pt = 0, dearness = 0, medical = 0, conveyance = 0, special = 0) {
+            let stdDeduction = 50000;
+            let totalDeductions = stdDeduction;
+            
+            if (regime === 'old') {
+                totalDeductions += Math.min(sec80c, 150000);
+                totalDeductions += Math.min(homeLoan, 200000);
+            }
+
+            let taxableIncome = Math.max(0, ctc - totalDeductions);
+            let tax = 0;
+
+            if (regime === 'new') {
+                if (taxableIncome > 300000) {
+                    let temp = taxableIncome;
+                    if (temp > 1500000) { tax += (temp - 1500000) * 0.30; temp = 1500000; }
+                    if (temp > 1200000) { tax += (temp - 1200000) * 0.20; temp = 1200000; }
+                    if (temp > 900000) { tax += (temp - 900000) * 0.15; temp = 900000; }
+                    if (temp > 600000) { tax += (temp - 600000) * 0.10; temp = 600000; }
+                    if (temp > 300000) { tax += (temp - 300000) * 0.05; }
+                }
+                if (taxableIncome <= 700000) tax = 0;
+            } else {
+                if (taxableIncome > 250000) {
+                    let temp = taxableIncome;
+                    if (temp > 1000000) { tax += (temp - 1000000) * 0.30; temp = 1000000; }
+                    if (temp > 500000) { tax += (temp - 500000) * 0.20; temp = 500000; }
+                    if (temp > 250000) { tax += (temp - 250000) * 0.05; }
+                }
+                if (taxableIncome <= 500000) tax = 0;
+            }
+
+            let cess = tax * 0.04;
+            let totalTax = tax + cess;
+            
+            // Total Monthly Gross includes base CTC/12
+            // Note: In most Indian payroll systems, Allowances are part of CTC, not add-ons.
+            // If they were add-ons, we would add them to ctc/12.
+            
+            return {
+                taxableIncome,
+                totalTax,
+                cess,
+                taxOnly: tax,
+                monthlyGross: ctc / 12, 
+                monthlyTDS: totalTax / 12,
+                epfMonthly: epf,
+                professionalTaxMonthly: pt,
+                monthlyNet: (ctc / 12) - (totalTax / 12) - epf - pt
+            };
+        }
+
+        // --- Settings Management ---
+        async function loadSettingsDashboard() {
+            const settings = await TDS_PORTAL.db.getSettings();
+            if (settings) {
+                document.getElementById('companyNameSetting').value = settings.siteName || '';
+                document.getElementById('companyTanSetting').value = settings.tan || '';
+                document.getElementById('companyPanSetting').value = settings.companyPan || '';
+                document.getElementById('companyAddressSetting').value = settings.companyAddress || '';
+            }
+        }
+
+        async function updateSettingsDashboard() {
+            const data = {
+                siteName: document.getElementById('companyNameSetting').value,
+                tan: document.getElementById('companyTanSetting').value,
+                companyPan: document.getElementById('companyPanSetting').value,
+                companyAddress: document.getElementById('companyAddressSetting').value
+            };
+            const success = await TDS_PORTAL.db.updateSettings(data);
+            if (success) TDS_PORTAL.ui.showToast("Settings updated successfully!", "success");
+            else TDS_PORTAL.ui.showToast("Failed to update settings", "error");
+        }
+
+        if (typeof TDS_PORTAL !== 'undefined' && TDS_PORTAL.ui) {
+
+        }
+
+        // --- Payroll Calculator Dashboard Logic ---
+        window.loadEmployeesCalculator = async () => {
+            console.log("Loading employees into calculator...");
+            const data = await TDS_PORTAL.db.getUsers();
+            const employees = data.users.filter(u => u.role === 'EMPLOYEE');
+            const empSelect = document.getElementById('employeeSelectCalculator');
+            if (!empSelect) return;
+            
+            empSelect.innerHTML = '<option value="">Select an Employee...</option>';
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.innerText = `${emp.name} [${emp.employeeId || 'N/A'}]`;
+                empSelect.appendChild(opt);
+            });
+        };
+
+        const regSel = document.getElementById('taxRegimeCalculator');
+        if (regSel) {
+            regSel.addEventListener('change', (e) => {
+                console.log("Tax regime changed to:", e.target.value);
+                const div = document.getElementById('deductionsDivCalculator');
+                if (e.target.value === 'old') div.classList.remove('hidden');
+                else {
+                    div.classList.add('hidden');
+                    document.getElementById('sec80cCalculator').value = '';
+                    document.getElementById('homeLoanCalculator').value = '';
+                }
+            });
+        }
+
+        window.calculateTDSDashboard = async () => {
+            console.log("--- Starting TDS Calculation ---");
+            
+            // 1. Fetch Inputs
+            const ctcInput = document.getElementById('annualCtcCalculator');
+            const regimeSelect = document.getElementById('taxRegimeCalculator');
+            const sec80cInput = document.getElementById('sec80cCalculator');
+            const homeLoanInput = document.getElementById('homeLoanCalculator');
+
+            const rawCtc = parseFloat(ctcInput.value);
+            if (!rawCtc || rawCtc <= 0 || isNaN(rawCtc)) {
+                console.warn("Invalid salary input!");
+                alert("Please enter a valid Annual Salary (CTC) greater than 0");
+                return;
+            }
+
+            const regime = regimeSelect.value;
+            const sec80c = parseFloat(sec80cInput.value) || 0;
+            const homeLoan = parseFloat(homeLoanInput.value) || 0;
+
+            // Auto-calculate components if empty
+            const monthlyBase = rawCtc / 12;
+            const basicMonthly = (rawCtc * 0.5) / 12;
+
+            const dearnessAllowanceInput = document.getElementById('dearnessAllowanceCalculator');
+            const medicalAllowanceInput = document.getElementById('medicalAllowanceCalculator');
+            const convenienceAllowanceInput = document.getElementById('convenienceAllowanceCalculator');
+            const epfInput = document.getElementById('epfCalculator');
+            const profTaxInput = document.getElementById('profTaxCalculator');
+
+            if (!dearnessAllowanceInput.value) dearnessAllowanceInput.value = Math.floor(basicMonthly * 0.1); // 10% of basic
+            if (!medicalAllowanceInput.value) medicalAllowanceInput.value = 1250;
+            if (!convenienceAllowanceInput.value) convenienceAllowanceInput.value = 1600;
+            if (!epfInput.value) epfInput.value = Math.min(1800, Math.floor(basicMonthly * 0.12)); // 12% or cap at 1800
+            if (!profTaxInput.value) profTaxInput.value = 200;
+
+            const dearnessAllowance = parseFloat(dearnessAllowanceInput.value) || 0;
+            const medicalAllowance = parseFloat(medicalAllowanceInput.value) || 0;
+            const convenienceAllowance = parseFloat(convenienceAllowanceInput.value) || 0;
+            const specialAllowance = parseFloat(document.getElementById('specialAllowanceCalculator').value) || 0;
+            const epf = parseFloat(epfInput.value) || 0;
+            const professionalTax = parseFloat(profTaxInput.value) || 0;
+            const workedDays = parseInt(document.getElementById('workedDaysCalculator').value) || 30;
+
+            console.log(`Inputs: CTC=${rawCtc}, Regime=${regime}, 80C=${sec80c}, HomeLoan=${homeLoan}, DA=${dearnessAllowance}, Medical=${medicalAllowance}, Convenience=${convenienceAllowance}, Special=${specialAllowance}, EPF=${epf}, PT=${professionalTax}, Days=${workedDays}`);
+
+            // 2. Basic Validation
+            if (!rawCtc || rawCtc <= 0 || isNaN(rawCtc)) {
+                console.warn("Invalid salary input!");
+                alert("Please enter a valid Annual Salary (CTC) greater than 0");
+                return;
+            }
+
+            // 3. Execution Calculation
+            const results = runTaxEngine(rawCtc, regime, sec80c, homeLoan, epf, professionalTax, dearnessAllowance, medicalAllowance, convenienceAllowance, specialAllowance);
+            console.log("Calculation Results:", results);
+
+            // 3b. Comparative Run
+            const newResults = runTaxEngine(rawCtc, 'new', 0, 0, epf, professionalTax); 
+            const oldResults = runTaxEngine(rawCtc, 'old', sec80c, homeLoan, epf, professionalTax);
+
+            // 4. Update UI Dynamically
+            const fmt = (num) => new Intl.NumberFormat('en-IN', { 
+                style: 'currency', 
+                currency: 'INR', 
+                maximumFractionDigits: 0 
+            }).format(Math.max(0, num));
+
+            // Summary
+            document.getElementById('resMonthlyGrossCalc').innerText = fmt(results.monthlyGross);
+            document.getElementById('resMonthlyTDSCalc').innerText = fmt(results.monthlyTDS);
+            document.getElementById('resNetSalaryCalc').innerText = fmt(results.monthlyNet);
+            document.getElementById('resTaxableCalc').innerText = fmt(results.taxableIncome);
+            document.getElementById('resTotalTaxCalc').innerText = fmt(results.totalTax);
+            document.getElementById('resRegimeApplied').innerText = regime === 'new' ? 'New Tax Regime' : 'Old Tax Regime';
+
+            const empSelect = document.getElementById('employeeSelectCalculator');
+            const empNameRaw = empSelect.options[empSelect.selectedIndex].text;
+            const empRefMatch = empNameRaw.match(/\[(.*?)\]/);
+            const employeeRef = empRefMatch ? empRefMatch[1] : 'N/A';
+            
+            if (document.getElementById('resEmployeeRefCalc')) document.getElementById('resEmployeeRefCalc').innerText = employeeRef;
+            if (document.getElementById('resTaxableCalcTable')) document.getElementById('resTaxableCalcTable').innerText = fmt(results.taxableIncome);
+            if (document.getElementById('resTotalTaxCalcTable')) document.getElementById('resTotalTaxCalcTable').innerText = fmt(results.totalTax);
+            if (document.getElementById('resRegimeAppliedTable')) document.getElementById('resRegimeAppliedTable').innerText = regime === 'new' ? 'New' : 'Old';
+
+            // Comparison Table
+            document.getElementById('compTaxableNew').innerText = fmt(newResults.taxableIncome);
+            document.getElementById('compTaxableOld').innerText = fmt(oldResults.taxableIncome);
+            document.getElementById('compTaxNew').innerText = fmt(newResults.totalTax);
+            document.getElementById('compTaxOld').innerText = fmt(oldResults.totalTax);
+            document.getElementById('compNetNew').innerText = fmt(newResults.monthlyNet);
+            document.getElementById('compNetOld').innerText = fmt(oldResults.monthlyNet);
+
+            // Savings Logic
+            const diff = Math.abs(newResults.totalTax - oldResults.totalTax);
+            const best = newResults.totalTax < oldResults.totalTax ? 'New' : 'Old';
+            
+            const tag = document.getElementById('comparisonBestTag');
+            const msg = document.getElementById('comparisonSavingMsg');
+            
+            if (diff > 0) {
+                tag.classList.remove('hidden');
+                tag.innerText = `${best} Regime is better`;
+                msg.classList.remove('hidden');
+                msg.innerText = `Switching to ${best} Regime could save you ${fmt(diff)} per year!`;
+            } else {
+                tag.classList.add('hidden');
+                msg.classList.add('hidden');
+            }
+
+            console.log("UI updated successfully.");
+            TDS_PORTAL.ui.showToast("Comparison Complete!", "success");
+        };
+
+        // --- Generate Individual Payslip ---
+        window.generateIndividualPayslip = async () => {
+            const ctcInput = document.getElementById('annualCtcCalculator');
+            const empSelect = document.getElementById('employeeSelectCalculator');
+            
+            const rawCtc = parseFloat(ctcInput.value);
+            if (!rawCtc || rawCtc <= 0) {
+                alert("Please calculate the tax first!");
+                return;
+            }
+
+            const regime = document.getElementById('taxRegimeCalculator').value;
+            const sec80c = parseFloat(document.getElementById('sec80cCalculator').value) || 0;
+            const homeLoan = parseFloat(document.getElementById('homeLoanCalculator').value) || 0;
+            
+            const results = runTaxEngine(rawCtc, regime, sec80c, homeLoan, parseFloat(document.getElementById('epfCalculator').value) || 0);
+            
+            // Fetch full employee details for PDF
+            const userDataResponse = await fetch(`/api/reports/form16/${empSelect.value}`);
+            const userData = await userDataResponse.json();
+            const user = userData.user;
+
+            const payload = {
+                name: user.name,
+                employeeId: user.employeeId || 'N/A',
+                designation: user.designation || 'N/A',
+                location: user.location || 'N/A',
+                department: user.department || 'N/A',
+                bankName: user.bankName || 'N/A',
+                bankAccountNo: user.bankAccountNo || 'N/A',
+                salary: Math.floor(results.monthlyNet),
+                deductions: Math.floor(results.monthlyTDS),
+                totalTax: Math.floor(results.totalTax),
+                ctc: rawCtc,
+                taxRegime: regime,
+                basicSalary: Math.floor(rawCtc * 0.5), // Send as Annual for backend division
+                hra: Math.floor(rawCtc * 0.2), // Send as Annual
+                dearnessAllowance: (parseFloat(document.getElementById('dearnessAllowanceCalculator').value) || 0) * 12,
+                convenienceAllowance: (parseFloat(document.getElementById('convenienceAllowanceCalculator').value) || 0) * 12,
+                medicalAllowance: (parseFloat(document.getElementById('medicalAllowanceCalculator').value) || 0) * 12,
+                specialAllowance: (parseFloat(document.getElementById('specialAllowanceCalculator').value) || 0) * 12,
+                epf: (parseFloat(document.getElementById('epfCalculator').value) || 0) * 12,
+                professionalTax: (parseFloat(document.getElementById('profTaxCalculator').value) || 0) * 12,
+                workedDays: parseInt(document.getElementById('workedDaysCalculator').value) || 30,
+                month: new Date().toLocaleString('default', { month: 'long' }),
+                year: new Date().getFullYear()
+            };
+
+            const response = await fetch('/api/reports/payslip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `payslip_${payload.name}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                TDS_PORTAL.ui.showToast("Payslip Generated!", "success");
+            } else {
+                TDS_PORTAL.ui.showToast("Failed to generate payslip", "error");
+            }
+        };
+
+        // --- Save Payroll & Form 16 ---
+        window.savePayrollAndForm16 = async () => {
+            const ctcInput = document.getElementById('annualCtcCalculator');
+            const empSelect = document.getElementById('employeeSelectCalculator');
+            const userId = empSelect.value;
+            
+            if (!userId) {
+                TDS_PORTAL.ui.showToast("Please select an employee first!", "info");
+                return;
+            }
+
+            const rawCtc = parseFloat(ctcInput.value);
+            if (!rawCtc || rawCtc <= 0) {
+                TDS_PORTAL.ui.showToast("Please compute tax first!", "info");
+                return;
+            }
+
+            const regime = document.getElementById('taxRegimeCalculator').value;
+            const sec80c = parseFloat(document.getElementById('sec80cCalculator').value) || 0;
+            const homeLoan = parseFloat(document.getElementById('homeLoanCalculator').value) || 0;
+            
+            // Auto-breakdown simulation for Form 16
+            const basic = rawCtc * 0.5;
+            const hra = rawCtc * 0.2;
+            const allowances = rawCtc * 0.3;
+            
+            const results = runTaxEngine(rawCtc, regime, sec80c, homeLoan, parseFloat(document.getElementById('epfCalculator').value) || 0);
+            
+            const payload = {
+                userId,
+                ctc: rawCtc,
+                salary: Math.floor(results.monthlyNet),
+                bonus: 0,
+                deductions: Math.floor(results.monthlyTDS),
+                taxableIncome: Math.floor(results.taxableIncome),
+                totalTax: Math.floor(results.totalTax),
+                taxRegime: regime,
+                month: new Date().toLocaleString('default', { month: 'long' }),
+                year: new Date().getFullYear(),
+                basicSalary: Math.floor(basic),
+                hra: Math.floor(hra),
+                allowances: Math.floor(allowances),
+                dearnessAllowance: (parseFloat(document.getElementById('dearnessAllowanceCalculator').value) || 0) * 12,
+                convenienceAllowance: (parseFloat(document.getElementById('convenienceAllowanceCalculator').value) || 0) * 12,
+                medicalAllowance: (parseFloat(document.getElementById('medicalAllowanceCalculator').value) || 0) * 12,
+                specialAllowance: (parseFloat(document.getElementById('specialAllowanceCalculator').value) || 0) * 12,
+                epf: (parseFloat(document.getElementById('epfCalculator').value) || 0) * 12,
+                professionalTax: (parseFloat(document.getElementById('profTaxCalculator').value) || 0) * 12,
+                workedDays: parseInt(document.getElementById('workedDaysCalculator').value) || 30,
+                sec80c: Math.floor(sec80c),
+                homeLoan: Math.floor(homeLoan),
+                taxCess: Math.floor(results.cess)
+            };
+
+            const success = await TDS_PORTAL.db.recordPayroll(payload);
+            if (success) {
+                TDS_PORTAL.ui.showToast("Payroll & Form 16 finalized successfully ✅", "success");
+                if (window.loadTDSReports) loadTDSReports();
+            } else {
+                TDS_PORTAL.ui.showToast("Failed to finalize records", "error");
+            }
+        };
+
+        // Initialize HR Dashboard
+        async function initHRDashboard() {
+            const stats = await TDS_PORTAL.db.getStats();
+            document.getElementById('statEmployees').innerText = stats.totalEmployees;
+            
+            const fmt = (num) => new Intl.NumberFormat('en-IN', { 
+                style: 'currency', 
+                currency: 'INR', 
+                maximumFractionDigits: 0 
+            }).format(num);
+
+            if (document.getElementById('statPayroll')) document.getElementById('statPayroll').innerText = fmt(stats.totalSalary);
+            if (document.getElementById('statTds')) document.getElementById('statTds').innerText = fmt(stats.totalTds);
+            if (document.getElementById('statPending')) document.getElementById('statPending').innerText = stats.pendingFilings || 0;
+            
+            const data = await TDS_PORTAL.db.getUsers();
+            const employees = data.users.filter(u => u.role === "EMPLOYEE");
+            const tbody = document.getElementById('employeeTableBody');
+            
+            if (tbody) {
+                tbody.innerHTML = employees.length ? employees.map(emp => `
+                    <tr class="hover:bg-slate-100 dark:bg-slate-800/30 transition-all duration-200 group border-b border-black/5 dark:border-white/5">
+                        <td class="px-8 py-5 font-bold text-indigo-500 text-sm tracking-tight">${emp.employeeId || 'EMP----'}</td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 font-bold mr-4 border border-indigo-500/20 group-hover:scale-110 transition-transform">
+                                    ${emp.name.split(' ').map(n => n[0]).join('')}
+                                </div>
+                                <div class="text-slate-900 dark:text-white font-medium">${emp.name}</div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 dark:text-slate-400">${emp.email}</td>
+                        <td class="px-8 py-5">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold ${emp.status === 'Inactive' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'} border uppercase tracking-wider">
+                                ${emp.status || 'Active'}
+                            </span>
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 text-sm font-medium">${emp.createdAt || 'Feb 12, 2026'}</td>
+                        <td class="px-8 py-5 text-right">
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="TDS_PORTAL.db.viewUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-500/20 text-slate-500 dark:text-slate-400 hover:text-indigo-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-indigo-500/30" title="View Details">
+                                    <i data-lucide="eye" class="w-4.5 h-4.5"></i>
+                                </button>
+                                <button onclick="TDS_PORTAL.db.editUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-500/20 text-slate-500 dark:text-slate-400 hover:text-indigo-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-indigo-500/30" title="Edit User">
+                                    <i data-lucide="edit-3" class="w-4.5 h-4.5"></i>
+                                </button>
+                                <button onclick="TDS_PORTAL.db.deleteUser('${emp.id}')" class="p-2.5 bg-slate-50 dark:bg-slate-800/50 hover:bg-red-500/20 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-xl transition-all border border-slate-300 dark:border-slate-700 hover:border-red-500/30" title="Delete User">
+                                    <i data-lucide="trash-2" class="w-4.5 h-4.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('') : `
+                    <tr>
+                        <td colspan="6" class="px-8 py-12 text-center text-slate-500">
+                            <div class="flex flex-col items-center">
+                                <i data-lucide="users" class="w-12 h-12 mb-4 opacity-20"></i>
+                                <p>No employees found in the directory.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+
+
+        // Initialize Charts
+        function initCharts() {
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(perfCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Compliance Rate',
+                        data: [92, 95, 94, 98, 97, 99],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointBackgroundColor: '#6366f1',
+                        pointBorderColor: '#0f172a',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+
+            // Compliance Pie Chart
+            const hrCtx = document.getElementById('hrChart').getContext('2d');
+            new Chart(hrCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Compliant', 'Pending', 'Action Required'],
+                    datasets: [{
+                        data: [85, 10, 5],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 11, weight: 'bold' }, padding: 20 }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        window.exportPayroll = (format) => {
+            const month = new Date().toLocaleString('default', { month: 'long' });
+            const year = new Date().getFullYear();
+            window.location.href = `/api/reports/payroll?format=${format}&month=${month}&year=${year}`;
+        };
+
+        window.loadTDSReports = async () => {
+            console.log("Fetching latest TDS reports...");
+            const tbody = document.getElementById('tdsReportTableBody');
+            if (!tbody) return;
+
+            // Clear and show loader
+            tbody.innerHTML = '<tr><td colspan="7" class="px-8 py-12 text-center text-slate-500"><i data-lucide="loader" class="w-8 h-8 mx-auto animate-spin mb-2"></i>Loading latest records...</td></tr>';
+            lucide.createIcons();
+
+            try {
+                const payrolls = await TDS_PORTAL.db.getPayrolls();
+                if (!payrolls || !payrolls.length) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="px-8 py-12 text-center text-slate-500">No payroll records found.</td></tr>';
+                    return;
+                }
+
+                const fmt = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+
+                tbody.innerHTML = payrolls.map(p => {
+                    try {
+                        const monthlyGross = (p.ctc || 0) / 12;
+                        const monthlyTDS = p.deductions || 0;
+                        const monthlyEPF = (p.epf || 0) / 12;
+                        const monthlyPT = (p.professionalTax || 0) / 12;
+                        const totalDeduction = monthlyTDS + monthlyEPF + monthlyPT;
+
+                        return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all border-b border-slate-200 dark:border-slate-800/50">
+                            <td class="px-8 py-5 text-sm font-bold text-indigo-500">${p.userId?.employeeId || 'EMP----'}</td>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 mr-3 font-bold text-xs">${(p.userId?.name || 'U')[0]}</div>
+                                    <div class="font-medium text-slate-900 dark:text-white text-sm">${p.userId?.name || 'Unknown'}</div>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5 text-sm text-slate-500 dark:text-slate-400 font-medium">${p.paidDays || 30}</td>
+                            <td class="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-300">${fmt(monthlyGross)}</td>
+                            <td class="px-8 py-5 text-sm text-rose-500 font-medium">${fmt(totalDeduction)}</td>
+                            <td class="px-8 py-5 text-sm text-rose-500 font-bold">${fmt(monthlyTDS)}</td>
+                            <td class="px-8 py-5">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-bold text-slate-900 dark:text-white">${fmt(p.totalTax)}</span>
+                                    <span class="text-[10px] text-slate-500 uppercase tracking-tighter">Annual Projection</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <button onclick="window.location.href='/api/reports/individual-payslip/${p._id}'" class="p-2 bg-indigo-500/10 hover:bg-indigo-500 text-indigo-500 hover:text-white rounded-lg transition-all border border-indigo-500/20" title="Download Individual Payslip">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        `;
+                    } catch (err) {
+                        console.error("Error rendering payroll record:", err, p);
+                        return `<tr class="bg-red-500/5"><td colspan="8" class="px-8 py-2 text-xs text-red-500 italic">Error rendering record ${p._id}</td></tr>`;
+                    }
+                }).join('');
+                
+                lucide.createIcons();
+            } catch (err) {
+                console.error("Report Load Error:", err);
+                tbody.innerHTML = '<tr><td colspan="7" class="px-8 py-12 text-center text-red-500 font-bold">Error loading report data.</td></tr>';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initHRDashboard();
+            initCharts();
+        });
+
+
+
+
+    </script>
+</body>
+</html>

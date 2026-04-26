@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Calculator | HR Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 glass-card border-none flex flex-col hidden md:flex shrink-0 sidebar-animate m-4 mr-0 rounded-2xl overflow-hidden z-50">
+        <div class="p-6 border-b border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i data-lucide="shield-check" class="text-slate-900 dark:text-white w-6 h-6"></i>
+                </div>
+                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TDS Portal</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 py-6 space-y-2 overflow-y-auto custom-scrollbar px-3">
+            <a href="hr-dashboard.html" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i> Dashboard
+            </a>
+            <a href="signup.html" class="sidebar-link flex items-center px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 transition-all duration-200 hover:bg-black/10 dark:bg-white/10 hover:text-slate-900 dark:text-white group rounded-xl">
+                <i data-lucide="user-plus" class="w-4 h-4 mr-3 group-hover:scale-110 transition-transform"></i> Add New User
+            </a>
+            <a href="payroll.html" class="sidebar-link active flex items-center px-4 py-3 text-sm font-medium text-slate-900 dark:text-white bg-black/10 dark:bg-white/10 transition-all duration-200 rounded-xl">
+                <i data-lucide="calculator" class="w-5 h-5 mr-3"></i> Payroll Calculator
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5">
+            <button onclick="logout()" class="flex items-center w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200 group">
+                <i data-lucide="log-out" class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="h-20 flex items-center px-8 sticky top-0 z-40">
+            <div class="glass-card w-full h-16 flex items-center px-6 mt-4">
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Payroll Calculator (TDS Projection)</h2>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Calculator Form -->
+                <div class="glass-card p-8 relative overflow-hidden group hover-lift animate-fade-in">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-colors duration-500"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center mb-6">
+                            <i data-lucide="calculator" class="w-6 h-6 mr-3 text-blue-500"></i>
+                            Calculate Salary
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <!-- Employee Select -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Select Employee</label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <select id="employeeSelect" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all text-sm font-medium">
+                                        <option value="">Select an Employee...</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- CTC Input -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Annual CTC (₹)</label>
+                                <div class="relative">
+                                    <i data-lucide="indian-rupee" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <input type="number" id="annualCtc" placeholder="e.g. 1200000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all font-medium">
+                                </div>
+                            </div>
+
+                            <!-- Regime Select -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Tax Regime</label>
+                                <div class="relative">
+                                    <i data-lucide="file-text" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                    <select id="taxRegime" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all">
+                                        <option value="new">New Regime</option>
+                                        <option value="old">Old Regime</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <!-- Deductions (Old Regime only) -->
+                            <div id="deductionsDiv" class="hidden space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">80C Investments (₹)</label>
+                                    <div class="relative">
+                                        <i data-lucide="trending-up" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="number" id="sec80c" placeholder="Max 150000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Home Loan Interest (₹)</label>
+                                    <div class="relative">
+                                        <i data-lucide="home" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                                        <input type="number" id="homeLoan" placeholder="Max 200000" class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-xl py-3 pl-12 pr-4 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="calculateTDS()" class="w-full btn-primary py-3 px-4 rounded-xl font-bold flex items-center justify-center transition-all bg-blue-600 hover:bg-blue-500 text-slate-900 dark:text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40">
+                                <i data-lucide="refresh-cw" class="w-5 h-5 mr-2"></i> Calculate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Output -->
+                <div class="glass-card p-8 relative overflow-hidden group hover-lift animate-fade-in" style="animation-delay: 0.1s;">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full -mr-32 -mt-32 blur-3xl transition-colors duration-500"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center mb-6">
+                            <i data-lucide="pie-chart" class="w-6 h-6 mr-3 text-emerald-500"></i>
+                            Projected Breakdown
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Monthly Breakdown -->
+                            <div class="p-5 bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl">
+                                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium uppercase tracking-widest mb-1">Monthly Gross (Approx)</p>
+                                <p class="text-2xl font-bold text-slate-900 dark:text-white" id="resMonthlyGross">₹0</p>
+                            </div>
+
+                            <div class="p-5 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                                <p class="text-rose-400 text-sm font-medium uppercase tracking-widest mb-1">Monthly TDS</p>
+                                <p class="text-2xl font-bold text-slate-900 dark:text-white" id="resMonthlyTDS">₹0</p>
+                            </div>
+
+                            <div class="p-5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                                <p class="text-emerald-400 text-sm font-medium uppercase tracking-widest mb-1">Monthly Take-Home</p>
+                                <p class="text-3xl font-bold text-emerald-400" id="resNetSalary">₹0</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                            <h4 class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Annual Stats</h4>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-slate-700 dark:text-slate-300">Net Taxable Income</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="resTaxable">₹0</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-slate-700 dark:text-slate-300">Total Tax (incl. 4% Cess)</span>
+                                <span class="font-bold text-slate-900 dark:text-white" id="resTotalTax">₹0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-700 dark:text-slate-300">Standard Deduction Applied</span>
+                                <span class="font-bold text-emerald-400">₹50,000</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Link Back -->
+            <div class="flex justify-center mt-6">
+                 <a href="hr-dashboard.html" class="flex items-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white transition-colors">
+                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i> Back to Dashboard
+                 </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Init icons
+        lucide.createIcons();
+
+        // Check authentication (HR role)
+        const user = TDS_PORTAL.session.getUser();
+        if (!user || user.role !== "HR") {
+            window.location.href = "index.html";
+        }
+
+        // Toggle Deductions visbility for Old Regime
+        const regimeSelect = document.getElementById('taxRegime');
+        const deductionsDiv = document.getElementById('deductionsDiv');
+
+        regimeSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'old') {
+                deductionsDiv.classList.remove('hidden');
+            } else {
+                deductionsDiv.classList.add('hidden');
+                if (document.getElementById('sec80c')) document.getElementById('sec80c').value = '';
+                if (document.getElementById('homeLoan')) document.getElementById('homeLoan').value = '';
+            }
+        });
+
+        // Basic Formatting
+        const formatCurrency = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+
+        async function loadEmployees() {
+            const data = await TDS_PORTAL.db.getUsers();
+            const employees = data.users.filter(u => u.role === 'EMPLOYEE');
+            const empSelect = document.getElementById('employeeSelect');
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.innerText = `${emp.name} [${emp.employeeId || 'N/A'}]`;
+                empSelect.appendChild(opt);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', loadEmployees);
+
+        async function calculateTDS() {
+            const empSelect = document.getElementById('employeeSelect');
+            if (!empSelect.value) {
+                alert("Please select an employee before calculating.");
+                return;
+            }
+
+            const rawCtc = parseFloat(document.getElementById('annualCtc').value);
+            const regime = document.getElementById('taxRegime').value;
+            const sec80c = parseFloat(document.getElementById('sec80c').value) || 0;
+            const homeLoan = parseFloat(document.getElementById('homeLoan')?.value) || 0;
+
+            if (!rawCtc || isNaN(rawCtc)) {
+                alert("Please enter a valid Annual CTC.");
+                return;
+            }
+
+            // Fixed Standard Deduction
+            let stdDeduction = 50000;
+            
+            // Deductions
+            let totalDeductions = stdDeduction;
+            if (regime === 'old') {
+                 // cap 80c at 150000, Home loan at 200000
+                 totalDeductions += Math.min(sec80c, 150000);
+                 totalDeductions += Math.min(homeLoan, 200000);
+            }
+
+            let taxableIncome = Math.max(0, rawCtc - totalDeductions);
+            let tax = 0;
+
+            if (regime === 'new') {
+                // New Regime Slabs (Simplified for FY 23-24 / 24-25 logic)
+                // Upto 3L -> Nil
+                // 3L - 6L -> 5%
+                // 6L - 9L -> 10%
+                // 9L - 12L -> 15%
+                // 12L - 15L -> 20%
+                // > 15L -> 30%
+                // Rebate 87A: Taxable <= 700000 -> Tax is Nil
+                if (taxableIncome <= 700000) {
+                    tax = 0;
+                } else {
+                    if (taxableIncome > 1500000) {
+                        tax += (taxableIncome - 1500000) * 0.30;
+                        taxableIncome = 1500000;
+                    }
+                    if (taxableIncome > 1200000) {
+                        tax += (taxableIncome - 1200000) * 0.20;
+                        taxableIncome = 1200000;
+                    }
+                    if (taxableIncome > 900000) {
+                        tax += (taxableIncome - 900000) * 0.15;
+                        taxableIncome = 900000;
+                    }
+                    if (taxableIncome > 600000) {
+                        tax += (taxableIncome - 600000) * 0.10;
+                        taxableIncome = 600000;
+                    }
+                    if (taxableIncome > 300000) {
+                        tax += (taxableIncome - 300000) * 0.05;
+                    }
+                }
+            } else {
+                // Old Regime Slabs (simplified for age < 60)
+                // Upto 2.5L -> Nil
+                // 2.5L - 5L -> 5%
+                // 5L - 10L -> 20%
+                // > 10L -> 30%
+                // Rebate 87A: Taxable <= 500000 -> Tax is Nil
+                if (taxableIncome <= 500000) {
+                    tax = 0;
+                } else {
+                    if (taxableIncome > 1000000) {
+                        tax += (taxableIncome - 1000000) * 0.30;
+                        taxableIncome = 1000000;
+                    }
+                    if (taxableIncome > 500000) {
+                        tax += (taxableIncome - 500000) * 0.20;
+                        taxableIncome = 500000;
+                    }
+                    if (taxableIncome > 250000) {
+                        tax += (taxableIncome - 250000) * 0.05;
+                    }
+                }
+            }
+
+            // Health and Edu Cess 4%
+            let totalTax = tax > 0 ? tax + (tax * 0.04) : 0;
+            let monthlyTDS = totalTax / 12;
+            let monthlyGross = rawCtc / 12;
+            let monthlyTakeHome = monthlyGross - monthlyTDS;
+
+            // DOM Updates
+            document.getElementById('resMonthlyGross').innerText = formatCurrency(monthlyGross);
+            document.getElementById('resMonthlyTDS').innerText = formatCurrency(monthlyTDS);
+            document.getElementById('resNetSalary').innerText = formatCurrency(monthlyTakeHome);
+            document.getElementById('resTaxable').innerText = formatCurrency(Math.max(0, rawCtc - totalDeductions));
+            document.getElementById('resTotalTax').innerText = formatCurrency(totalTax);
+
+            // Save the report to database
+            const employeeName = empSelect.options[empSelect.selectedIndex].text.split(' (')[0];
+            const admin = TDS_PORTAL.session.getUser();
+            const payrollData = {
+                userId: empSelect.value,
+                hrId: admin.id,
+                salary: monthlyTakeHome,
+                ctc: rawCtc,
+                bonus: 0,
+                deductions: 0,
+                taxableIncome: taxableIncome,
+                totalTax: totalTax,
+                taxRegime: regime,
+                month: new Date().toLocaleString('en-US', { month: 'long' }),
+                year: new Date().getFullYear()
+            };
+
+            try {
+                const response = await fetch("/api/payroll", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payrollData)
+                });
+                
+                if (response.ok) {
+                    TDS_PORTAL.ui.showToast(`✅ Payroll updated for ${employeeName}!`, "success");
+                    // Also save locally for the Admin reports view (optional but keeps consistency)
+                    const report = { ...payrollData, employeeName, id: Date.now().toString(), createdAt: new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) };
+                    const savedReports = JSON.parse(localStorage.getItem('tdsReports') || '[]');
+                    savedReports.push(report);
+                    localStorage.setItem('tdsReports', JSON.stringify(savedReports));
+                } else {
+                    const errData = await response.json();
+                    throw new Error(errData.error || "Failed to save payroll");
+                }
+            } catch (error) {
+                console.error("Payroll save error:", error);
+                TDS_PORTAL.ui.showToast(`Error: ${error.message}`, "error");
+            }
+        }
+    </script>
+</body>
+</html>

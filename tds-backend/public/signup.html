@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | TDS Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 dark:bg-[#0f172a] text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
+    <!-- Theme Toggle -->
+    <div class="absolute top-6 right-6 z-50">
+        <button onclick="TDS_PORTAL.ui.toggleTheme()" class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white relative transition-colors bg-white/50 dark:bg-black/20 rounded-xl border border-black/10 dark:border-white/10 shadow-sm backdrop-blur-md">
+            <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+            <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+    </div>
+
+    <!-- Animated Background Elements -->
+    <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="relative z-10 w-full max-w-md animate-fade-in">
+        <!-- Back Button -->
+        <button onclick="goBack()" class="flex items-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:text-white mb-8 transition-colors group">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i>
+            Back to login
+        </button>
+
+        <div class="glass-card p-8 shadow-2xl relative">
+            <!-- Role Badge -->
+            <div id="roleBadge" class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border hidden"></div>
+
+            <div class="flex flex-col items-center mb-8">
+                <div id="iconContainer" class="w-16 h-16 rounded-xl flex items-center justify-center mb-4 transition-all duration-500">
+                    <i id="headerIcon" data-lucide="user-plus" class="w-8 h-8"></i>
+                </div>
+                <h2 id="signupTitle" class="text-2xl font-bold text-slate-900 dark:text-white">Create Account</h2>
+                <p id="signupSubtitle" class="text-slate-500 dark:text-slate-400 mt-2 text-center">Register a new member in the system</p>
+            </div>
+
+            <div class="space-y-4">
+                <div id="roleSelectionContainer" class="hidden">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Account Role</label>
+                    <div id="roleOptionsGrid" class="grid grid-cols-2 gap-3">
+                        <label class="relative cursor-pointer group">
+                            <input type="radio" name="accountRole" value="EMPLOYEE" checked class="peer sr-only">
+                            <div class="p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-center transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 group-hover:border-slate-600">
+                                <i data-lucide="users" class="w-4 h-4 mx-auto mb-1 text-slate-500 peer-checked:text-emerald-400"></i>
+                                <span class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 peer-checked:text-slate-900 dark:text-white">Employee</span>
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer group" id="hrRoleOption">
+                            <input type="radio" name="accountRole" value="HR" class="peer sr-only">
+                            <div class="p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/50 text-center transition-all peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 group-hover:border-slate-600">
+                                <i data-lucide="shield-check" class="w-4 h-4 mx-auto mb-1 text-slate-500 peer-checked:text-indigo-400"></i>
+                                <span class="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 peer-checked:text-slate-900 dark:text-white">HR Manager</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Full Name</label>
+                    <div class="relative">
+                        <i data-lucide="user" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="text" id="signupName" 
+                            class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                            placeholder="John Doe">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Email Address</label>
+                    <div class="relative">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                        <input type="email" id="signupEmail" 
+                            class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                            placeholder="name@company.com">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                            <input type="password" id="signupPassword" 
+                                class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Confirm</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                            <input type="password" id="signupConfirmPassword" 
+                                class="w-full bg-white dark:bg-slate-900/50 border border-slate-300 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-4 text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-sm"
+                                placeholder="••••••••">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="signup()" 
+                    class="w-full btn-success mt-6">
+                    Create Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let isInitialSetup = false;
+        const loggedInUser = TDS_PORTAL.session.getUser();
+        
+        async function checkInitialSetup() {
+            try {
+                const res = await fetch("/api/stats");
+                const stats = await res.json();
+                return stats.totalAdmins === 0 && stats.totalHRs === 0 && stats.totalEmployees === 0;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        let adminRole = loggedInUser ? loggedInUser.role : null;
+
+        // UI Customization Elements
+        const badge = document.getElementById('roleBadge');
+        const iconContainer = document.getElementById('iconContainer');
+        const headerIcon = document.getElementById('headerIcon');
+        const roleSelection = document.getElementById('roleSelectionContainer');
+        const backBtnText = document.querySelector('button[onclick="goBack()"]');
+        const title = document.getElementById('signupTitle');
+        const subtitle = document.getElementById('signupSubtitle');
+        const adminRoleOption = document.getElementById('adminRoleOption');
+        const roleOptionsGrid = document.getElementById('roleOptionsGrid');
+
+        checkInitialSetup().then(isInitial => {
+            isInitialSetup = isInitial;
+
+            if (!isInitialSetup && (!loggedInUser || loggedInUser.role !== "HR")) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            if (isInitialSetup) adminRole = "SYSTEM";
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlRole = urlParams.get('role');
+
+            if (isInitialSetup) {
+                if (badge) {
+                    badge.innerText = "System Setup";
+                    badge.className += " block bg-amber-500/10 text-amber-400 border-amber-500/20";
+                }
+                if (iconContainer) iconContainer.className += " bg-amber-500/20";
+                if (headerIcon) {
+                    headerIcon.setAttribute('data-lucide', 'shield-check');
+                    headerIcon.className += " text-amber-400";
+                }
+                if (title) title.innerText = "Create HR Manager Account";
+                if (subtitle) subtitle.innerText = "Setup the first HR manager for the TDS Portal";
+                
+                const backBtn = document.querySelector('button[onclick="goBack()"]');
+                if (backBtn) backBtn.classList.add('hidden');
+            } else if (adminRole === "HR") {
+                if (badge) {
+                    badge.innerText = "HR Portal";
+                    badge.className += " block bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+                }
+                if (iconContainer) iconContainer.className += " bg-indigo-500/20";
+                if (headerIcon) headerIcon.className += " text-indigo-400";
+                if (title) title.innerText = "Create System User";
+                if (subtitle) subtitle.innerText = "Register a new Member (Employee or HR)";
+                if (roleSelection) roleSelection.classList.remove('hidden');
+            }
+
+            if (urlRole) {
+                const roleRadio = document.querySelector(`input[name="accountRole"][value="${urlRole}"]`);
+                if (roleRadio) {
+                    roleRadio.checked = true;
+                }
+
+                if ((adminRole === 'ADMIN' || adminRole === 'HR') && urlRole === 'EMPLOYEE') {
+                    if (roleSelection) roleSelection.classList.add('hidden');
+                    if (title) title.innerText = "Create Employee";
+                    if (subtitle) subtitle.innerText = "Register a new Employee account";
+                }
+            }
+
+            if (backBtnText) {
+                backBtnText.innerHTML = `<i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i> Back to Dashboard`;
+            }
+
+            lucide.createIcons();
+        });
+
+        function goBack() {
+
+            if (adminRole === "HR") window.location.href = "hr-dashboard.html";
+            else window.location.href = "index.html";
+        }
+
+        lucide.createIcons();
+
+        async function signup() {
+            try {
+                const nameEl = document.getElementById("signupName");
+                const emailEl = document.getElementById("signupEmail");
+                const passwordEl = document.getElementById("signupPassword");
+                const confirmEl = document.getElementById("signupConfirmPassword");
+
+                if (!nameEl || !emailEl || !passwordEl || !confirmEl) {
+                    console.error("Form elements not found");
+                    return;
+                }
+
+                const name = nameEl.value.trim();
+                const email = emailEl.value.trim().toLowerCase();
+                const password = passwordEl.value;
+                const confirm = confirmEl.value;
+                
+                // Get selected role (relevant for ADMIN and HR). Force ADMIN on initial setup.
+                let targetRole;
+
+                if (isInitialSetup) {
+                    targetRole = "ADMIN";
+                } else {
+                    const selectedRoleEl = document.querySelector('input[name="accountRole"]:checked');
+
+                    if (!selectedRoleEl) {
+                        TDS_PORTAL.ui.showToast("Please select account role", "error");
+                        return;
+                    }
+
+                    targetRole = selectedRoleEl.value;
+                }
+
+                if (!name || !email || !password || !confirm) {
+                    TDS_PORTAL.ui.showToast("All fields are required", "error");
+                    return;
+                }
+
+                // 📧 Email Format Validation
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    TDS_PORTAL.ui.showToast("Please enter a valid email address", "error");
+                    return;
+                }
+
+                if (password !== confirm) {
+                    TDS_PORTAL.ui.showToast("Passwords do not match", "error");
+                    return;
+                }
+
+                const data = await TDS_PORTAL.db.getUsers(1, email);
+
+                if (data.users.some(user => user.email === email)) {
+                    TDS_PORTAL.ui.showToast("Email already exists", "error");
+                    return;
+                }
+
+                // 🔐 Role Hierarchy Validation
+                if (adminRole === "HR" && targetRole === "HR" && !isInitialSetup) {
+                    // This logic depends on whether we want HRs to create other HRs.
+                    // For now let's allow it if necessary, or restrict.
+                }
+
+                const res = await fetch("/api/signup", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        role: targetRole,
+                        createdBy: adminRole
+                    })
+                });
+
+                if (!res.ok) {
+                     const errorData = await res.json();
+                     throw new Error(errorData.message || "Failed to create account");
+                }
+
+                TDS_PORTAL.ui.showToast(`${targetRole} account created successfully`, "success");
+
+                setTimeout(() => {
+                    if (adminRole === "HR") window.location.href = "hr-dashboard.html";
+                    else window.location.href = "index.html";
+                }, 1000);
+            } catch (error) {
+                console.error("Signup error:", error);
+                TDS_PORTAL.ui.showToast("An error occurred during signup", "error");
+            }
+        }
+
+        // UI Initialized previously via checkInitialSetup()
+
+    </script>
+</body>
+</html>

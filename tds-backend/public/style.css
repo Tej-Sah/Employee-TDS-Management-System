@@ -1,0 +1,278 @@
+:root {
+    --bg-dark: #0f172a;
+    --bg-slate-900: #0f172a;
+    --bg-slate-800: #1e293b;
+    --border-slate: rgba(255, 255, 255, 0.1);
+    --text-slate-200: #e2e8f0;
+    --text-slate-400: #94a3b8;
+    --text-slate-500: #64748b;
+    --blue-500: #3b82f6;
+    --blue-600: #2563eb;
+    --indigo-500: #6366f1;
+    --indigo-600: #4f46e5;
+    --emerald-500: #10b981;
+    --emerald-600: #059669;
+    --regime-header: rgba(30, 27, 75, 0.4); /* Deep indigo for table headers */
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8fafc;
+    color: #1e293b;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+    background-color: var(--bg-dark);
+    color: var(--text-slate-200);
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+html.dark .glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-slate);
+}
+
+/* Standardized Glass Card */
+.glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 1.25rem; /* 20px - rounded-2xl */
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+html.dark .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* Standardized Buttons */
+.btn-base, .btn-primary, .btn-success, .btn-indigo, .btn-danger, .btn-ghost {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 0.75rem; /* 12px - rounded-xl */
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background-color: var(--blue-600);
+    color: white;
+}
+.btn-primary:hover {
+    background-color: var(--blue-500);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-success {
+    background-color: var(--emerald-600);
+    color: white;
+}
+.btn-success:hover {
+    background-color: var(--emerald-500);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-indigo {
+    background-color: var(--indigo-600);
+    color: white;
+}
+.btn-indigo:hover {
+    background-color: var(--indigo-500);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background-color: #dc2626; /* red-600 */
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #ef4444; /* red-500 */
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-ghost {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-slate-200);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-link {
+    transition: all 0.2s ease;
+}
+
+.sidebar-link.active {
+    background: rgba(255, 255, 255, 0.05);
+    position: relative;
+}
+
+.sidebar-link.active::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: currentColor;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Industry Standard Animations & Effects */
+.hover-lift {
+    transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.btn-glow-blue:hover {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+}
+
+.btn-glow-emerald:hover {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+}
+
+.btn-glow-indigo:hover {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+}
+
+/* Sidebar Slide Animation */
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.sidebar-animate {
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Modal Animations */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+    animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Form 16 Specific Styles (Government Format) */
+.form16-official {
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+}
+
+.f16-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #1e293b;
+}
+
+.f16-table td {
+    border: 1px solid #1e293b;
+    padding: 12px;
+    vertical-align: top;
+}
+
+.f16-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #64748b;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.f16-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.f16-header-box {
+    text-align: center;
+    border: 1px solid #1e293b;
+    padding: 15px;
+    background: #f8fafc;
+}
+
+html.dark .f16-table, 
+html.dark .f16-table td, 
+html.dark .f16-header-box {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+html.dark .f16-value {
+    color: #f8fafc;
+}
+
+html.dark .f16-header-box {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Regime Comparison Table Styles */
+.regime-table-header {
+    background: var(--regime-header);
+    backdrop-filter: blur(8px);
+}
+
+.regime-table-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.regime-value-positive {
+    color: var(--emerald-500);
+}
+
+.regime-value-negative {
+    color: #f43f5e; /* rose-500 */
+}
+
